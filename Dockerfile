@@ -1,14 +1,14 @@
 # go build
 FROM golang:1.22 as go-build
 
-WORKDIR /backend
+WORKDIR /webserver/backend
 
 ## install dependencies
-COPY backend/go.mod backend/go.sum ./
+COPY webserver/backend/go.mod webserver/backend/go.sum ./
 RUN go mod download
 
-## run backend server
-COPY backend/**/*.go ./
+## run backend webserver
+COPY webserver/backend/**/*.go ./
 ENV PORT=:8080
 RUN CGO_ENABLED=0 GOOS=linux go build -o ./binary
 
@@ -16,20 +16,20 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o ./binary
 # node (angular) build
 FROM node:21.7 as node-build
 
-WORKDIR /frontend
+WORKDIR /webserver/frontend
 
 ## install dependencies
-COPY frontend/package.json frontend/package-lock.json ./
+COPY webserver/frontend/package.json webserver/frontend/package-lock.json ./
 RUN npm install
 
 ## build angular app
-COPY frontend ./
+COPY webserver/frontend ./
 RUN npm run build
 
 # final stage
 FROM scratch
 
-COPY --from=go-build /backend/binary /app/backend-binary
-COPY --from=node-build /frontend/dist /app/dist
+COPY --from=go-build /webserver/backend/binary /app/webserver-binary
+COPY --from=node-build /webserver/frontend/dist /app/dist
 
-CMD ["/app/backend-binary"]
+CMD ["/app/webserver-binary"]
