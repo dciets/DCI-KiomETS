@@ -1,0 +1,23 @@
+/* To use the variables from this stylesheet, use @import "src/styles.scss"; */
+
+/*
+ * Color variables
+ */
+$bg-dark: #222;
+$bg-light: #888;
+$text-light: white;
+$primary: #007bff;
+
+/*
+ * Sizing variables
+ */
+$nav-height: 60px;
+$screen-height: calc(100vh - $nav-height);
+
+/*
+ * Global styles
+ */
+body {
+  background-color: $bg-dark;
+  color: $text-light;
+}

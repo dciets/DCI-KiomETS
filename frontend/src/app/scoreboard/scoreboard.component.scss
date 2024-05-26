@@ -1,0 +1,29 @@
+@import "src/styles.scss";
+
+.scoreboard {
+  width: max(500px, 50%);
+  margin-inline: auto;
+  margin-top: 1em;
+
+  tr {
+    height: 2.5em;
+
+    td,
+    th {
+      padding-inline: 1em;
+    }
+
+    &:nth-child(even) {
+      background: $bg-light;
+    }
+
+    :first-child {
+      width: 10%;
+      text-align: center;
+    }
+
+    :last-child {
+      width: 15%;
+    }
+  }
+}

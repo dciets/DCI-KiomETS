@@ -1,0 +1,12 @@
+<nav class="d-flex align-items-center justify-content-between">
+  <img class="logo" src="/assets/img/logo_white.png" alt="DCI" />
+  <div class="btn-wrapper d-flex">
+    <a [routerLink]="'/'">Accueil</a>
+    <a [routerLink]="'/signup'">Inscription</a>
+    <a [routerLink]="'/game'">Jeu</a>
+    <a [routerLink]="'/scoreboard'">Scoreboard</a>
+    <a [routerLink]="'/admin'">Admin</a>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>
