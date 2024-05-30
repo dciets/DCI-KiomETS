@@ -52,7 +52,7 @@ func TestTcpListenerWithOneChannel(t *testing.T) {
 	var listener interfaces.Listener
 	var channel chan string = make(chan string)
 	defer close(channel)
-	var timeBeforeTimeout time.Time = time.Time{}
+	var timeBeforeTimeout time.Duration = time.Duration(0) * time.Millisecond
 	var listeningChannel chan bool = make(chan bool)
 	var pLC = &listeningChannel
 	defer close(listeningChannel)
