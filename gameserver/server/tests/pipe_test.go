@@ -1,12 +1,12 @@
 package tests
 
 import (
-	"github.com/google/uuid"
 	"server/game"
 	"testing"
 )
 
 type mockNode struct {
+	game.Node
 	Pipe            *game.Pipe
 	SendSoldiers    []*game.SoldierGroup
 	ReceiveSoldiers []*game.SoldierGroup
@@ -21,10 +21,6 @@ func (n *mockNode) Tick() {
 
 func (n *mockNode) PostTick() {
 
-}
-
-func (n *mockNode) GetId() uuid.UUID {
-	return uuid.Max
 }
 
 func (n *mockNode) AddToActionQueue(soldierGroup *game.SoldierGroup, from game.Location) {

@@ -13,13 +13,14 @@ var port uint32 = 10000
 var message string = "allo"
 var magic uint32 = 0x11223344
 
-func runListener(l interfaces.Listener, hasListenerFinished *bool, t *testing.T) {
+func runListener(l interfaces.Listener, hasListenerFinished *bool, t *testing.T, end *chan bool) {
 	var err error
 	err = l.Run()
 	if err != nil {
 		t.Fatal(err)
 	}
 	*hasListenerFinished = true
+	*end <- true
 }
 
 func runClient(hasClientFinished *bool, t *testing.T, end *chan bool) {
@@ -59,13 +60,14 @@ func TestTcpListenerWithOneChannel(t *testing.T) {
 	listener = interfaces.NewTcpListener(port, &channel, timeBeforeTimeout, magic)
 	listener.AddListeningChannel(pLC)
 
-	go runListener(listener, &hasListenerFinished, t)
+	go runListener(listener, &hasListenerFinished, t, pLC)
 	_ = <-listeningChannel
 	go runClient(&hasClientFinished, t, pLC)
 	_ = <-listeningChannel
 	listener.Stop()
 	var receivedMessage string
 	receivedMessage = <-channel
+	_ = <-listeningChannel
 	if !hasListenerFinished {
 		t.Fatalf("hasListenerFinished should be true")
 	}
