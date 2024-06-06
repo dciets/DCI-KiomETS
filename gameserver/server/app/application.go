@@ -3,7 +3,9 @@ package app
 import (
 	"errors"
 	"os"
+	"server/interfaces"
 	"strconv"
+	"time"
 )
 
 type Application struct {
@@ -43,4 +45,16 @@ func LoadApplicationFromEnv() (*Application, error) {
 	var app *Application = NewApplication(uint32(adminPort), uint32(gamePort))
 
 	return app, nil
+}
+
+func (app *Application) Start() {
+	var adminChannel chan string = make(chan string)
+	var gameChannel chan string = make(chan string)
+	var adminListener interfaces.Listener = interfaces.NewTcpListener(app.AdminPort, &adminChannel, time.Duration(0), 0x11111111)
+	var gameListener interfaces.Listener = interfaces.NewTcpListener(app.GamePort, &gameChannel, time.Duration(0), 0x22222222)
+	defer adminListener.Stop()
+	defer gameListener.Stop()
+	defer close(adminChannel)
+	defer close(gameChannel)
+
 }
