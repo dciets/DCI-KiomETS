@@ -1,14 +1,13 @@
 package app
 
-import "github.com/google/uuid"
-
 type Player struct {
-	id   uuid.UUID
-	name string
+	id     string
+	name   string
+	points uint32
 }
 
 func (p *Player) Id() string {
-	return p.id.String()
+	return p.id
 }
 
 func (p *Player) Name() string {

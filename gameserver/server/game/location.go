@@ -1,7 +1,5 @@
 package game
 
-import "github.com/google/uuid"
-
 type Location interface {
 	Tick()
 	PostTick()
@@ -10,5 +8,5 @@ type Location interface {
 
 type Node interface {
 	Location
-	GetId() uuid.UUID
+	GetId() string
 }

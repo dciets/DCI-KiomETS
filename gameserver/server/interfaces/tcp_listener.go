@@ -10,7 +10,6 @@ import (
 	"server/communications"
 	"slices"
 	"sync"
-	"time"
 )
 
 type TcpListener struct {
@@ -19,14 +18,13 @@ type TcpListener struct {
 	isTcpClosed       bool
 	tcpListener       net.Listener
 	connections       []net.Conn
-	timeBeforeTimeout time.Duration
 	callWhenListening *chan bool
 	magic             uint32
 	mut               sync.Mutex
 }
 
-func NewTcpListener(port uint32, receiver *chan string, timeBeforeTimeout time.Duration, magic uint32) *TcpListener {
-	return &TcpListener{port: port, receiver: receiver, timeBeforeTimeout: timeBeforeTimeout, isTcpClosed: true, connections: []net.Conn{}, tcpListener: nil, callWhenListening: nil, magic: magic}
+func NewTcpListener(port uint32, receiver *chan string, magic uint32) *TcpListener {
+	return &TcpListener{port: port, receiver: receiver, isTcpClosed: true, connections: []net.Conn{}, tcpListener: nil, callWhenListening: nil, magic: magic}
 }
 
 func (t *TcpListener) AddListeningChannel(channel *chan bool) {
@@ -67,13 +65,14 @@ func (t *TcpListener) Run() error {
 	return nil
 }
 
-func (t *TcpListener) Write(message []byte) error {
+func (t *TcpListener) Write(message string) error {
 	if t.isTcpClosed {
 		return errors.New("listener is closed")
 	}
 	var hasError bool = false
+	var communication *communications.Communication = communications.NewCommunication(message, t.magic)
 	for _, conn := range t.connections {
-		_, err := conn.Write(message)
+		_, err := conn.Write(communication.AsByte())
 		if err != nil {
 			hasError = true
 		}
@@ -100,11 +99,6 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		var readByte int
 
 		t.mut.Lock()
-		if t.timeBeforeTimeout.Milliseconds() > 0 {
-			_ = conn.SetReadDeadline(time.Now().Add(t.timeBeforeTimeout))
-		} else {
-			_ = conn.SetReadDeadline(time.Time{})
-		}
 		readByte, connErr = conn.Read(protocol)
 
 		if errors.Is(connErr, io.ErrClosedPipe) {

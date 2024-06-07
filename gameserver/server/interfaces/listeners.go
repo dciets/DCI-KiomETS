@@ -3,6 +3,6 @@ package interfaces
 type Listener interface {
 	Run() error
 	Stop()
-	Write([]byte) error
+	Write(string) error
 	AddListeningChannel(*chan bool)
 }

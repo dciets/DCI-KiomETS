@@ -6,14 +6,9 @@ import (
 	"server/interfaces"
 	"strconv"
 	"testing"
-	"time"
 )
 
-var port uint32 = 10000
-var message string = "allo"
-var magic uint32 = 0x11223344
-
-func runListener(l interfaces.Listener, hasListenerFinished *bool, t *testing.T, end *chan bool) {
+func tcpListenerTestRunListener(l interfaces.Listener, hasListenerFinished *bool, t *testing.T, end *chan bool) {
 	var err error
 	err = l.Run()
 	if err != nil {
@@ -23,7 +18,7 @@ func runListener(l interfaces.Listener, hasListenerFinished *bool, t *testing.T,
 	*end <- true
 }
 
-func runClient(hasClientFinished *bool, t *testing.T, end *chan bool) {
+func tcpListenerTestRunClient(hasClientFinished *bool, t *testing.T, end *chan bool, message string, magic uint32, port uint32) {
 	var conn net.Conn
 	var err error
 	conn, _ = net.Dial("tcp", "127.0.0.1:"+strconv.Itoa(int(port)))
@@ -48,21 +43,24 @@ func runClient(hasClientFinished *bool, t *testing.T, end *chan bool) {
 }
 
 func TestTcpListenerWithOneChannel(t *testing.T) {
+	var message string = "allo"
+	var magic uint32 = 0x11223344
+	var port uint32 = 10000
+
 	var hasListenerFinished bool = false
 	var hasClientFinished bool = false
 	var listener interfaces.Listener
 	var channel chan string = make(chan string)
 	defer close(channel)
-	var timeBeforeTimeout time.Duration = time.Duration(0) * time.Millisecond
 	var listeningChannel chan bool = make(chan bool)
 	var pLC = &listeningChannel
 	defer close(listeningChannel)
-	listener = interfaces.NewTcpListener(port, &channel, timeBeforeTimeout, magic)
+	listener = interfaces.NewTcpListener(port, &channel, magic)
 	listener.AddListeningChannel(pLC)
 
-	go runListener(listener, &hasListenerFinished, t, pLC)
+	go tcpListenerTestRunListener(listener, &hasListenerFinished, t, pLC)
 	_ = <-listeningChannel
-	go runClient(&hasClientFinished, t, pLC)
+	go tcpListenerTestRunClient(&hasClientFinished, t, pLC, message, magic, port)
 	_ = <-listeningChannel
 	listener.Stop()
 	var receivedMessage string

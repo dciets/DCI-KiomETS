@@ -25,4 +25,11 @@ func main() {
 		panic(appErr)
 	}
 
+	go func() {
+		for {
+			_ = <-*application.DuplicateChannel
+		}
+	}()
+
+	application.Start(nil)
 }

@@ -8,7 +8,7 @@ type TerrainState interface {
 }
 
 type Terrain struct {
-	id             uuid.UUID
+	id             string
 	state          TerrainState
 	incomingGroups []*SoldierGroup
 	owner          *Player
@@ -17,7 +17,7 @@ type Terrain struct {
 
 func NewTerrain(id uuid.UUID) *Terrain {
 	return &Terrain{
-		id:       id,
+		id:       id.String(),
 		state:    &EmptyTerrainState{},
 		owner:    nil,
 		soldiers: nil,
@@ -48,7 +48,7 @@ func (t *Terrain) PostTick() {
 	t.incomingGroups = []*SoldierGroup{}
 }
 
-func (t *Terrain) GetId() uuid.UUID {
+func (t *Terrain) GetId() string {
 	return t.id
 }
 
