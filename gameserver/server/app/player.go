@@ -6,6 +6,10 @@ type Player struct {
 	points uint32
 }
 
+func NewPlayer(id string, name string) *Player {
+	return &Player{id: id, name: name, points: 0}
+}
+
 func (p *Player) Id() string {
 	return p.id
 }

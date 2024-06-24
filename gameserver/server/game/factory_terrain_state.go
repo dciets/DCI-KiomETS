@@ -1,5 +1,7 @@
 package game
 
+import "server/game/serialisation"
+
 const TickToCreate uint8 = 2
 
 type FactoryTerrainState struct {
@@ -16,4 +18,8 @@ func (f *FactoryTerrainState) tick() {
 
 func (f *FactoryTerrainState) getFightingFunctions() (fightFunction, fightFunction) {
 	return defaultTerrainF1Function, defaultTerrainF2Function
+}
+
+func (f *FactoryTerrainState) getTerrainType() serialisation.TerrainType {
+	return serialisation.Factory
 }

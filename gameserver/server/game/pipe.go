@@ -1,5 +1,7 @@
 package game
 
+import "server/game/serialisation"
+
 type direction uint8
 
 const (
@@ -122,4 +124,23 @@ func (p *Pipe) AddToActionQueue(soldierGroup *SoldierGroup, from Location) {
 	} else if from == p.secondLocation {
 		p.pendingGroups[1] = soldierGroup
 	}
+}
+
+func (p *Pipe) Serialize(playerNameIndexMap map[string]int, terrainIdIndexMap map[string]int) serialisation.PipeSerialisation {
+	var pipeSerialisation *serialisation.PipeSerialisation = serialisation.NewPipeSerialisation(
+		uint(p.length),
+		uint(terrainIdIndexMap[p.firstLocation.GetId()]),
+		uint(terrainIdIndexMap[p.secondLocation.GetId()]),
+		len(p.groups))
+
+	var i int = 0
+	for _, g := range p.groups {
+		pipeSerialisation.Soldiers[i] = *serialisation.NewGroupSerialisation(
+			playerNameIndexMap[g.Group.player.name],
+			uint(g.Group.count),
+			uint(g.getTrueLength(p.length)),
+			g.Direction == To)
+		i++
+	}
+	return *pipeSerialisation
 }

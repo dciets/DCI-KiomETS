@@ -56,11 +56,14 @@ func (t *TcpListener) Run() error {
 	for !t.isTcpClosed {
 		var conn net.Conn
 		conn, tcpError = t.tcpListener.Accept()
+		log.Printf("Connection accepted on port %d\n", t.port)
 		if tcpError == nil {
 			t.connections = append(t.connections, conn)
 			go t.acceptRequest(conn)
 		}
 	}
+
+	log.Print("Listener stopping")
 
 	return nil
 }
@@ -101,7 +104,7 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		t.mut.Lock()
 		readByte, connErr = conn.Read(protocol)
 
-		if errors.Is(connErr, io.ErrClosedPipe) {
+		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) {
 			t.mut.Unlock()
 			return
 		}
@@ -131,7 +134,7 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		readByte, connErr = conn.Read(messageBuff)
 		t.mut.Unlock()
 
-		if errors.Is(connErr, io.ErrClosedPipe) {
+		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) {
 			return
 		}
 

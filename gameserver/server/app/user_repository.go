@@ -8,7 +8,10 @@ type UserRepository struct {
 }
 
 func NewUserRepository() *UserRepository {
-	return &UserRepository{}
+	return &UserRepository{
+		usedIds: make([]string, 0),
+		players: make(map[string]*Player),
+	}
 }
 
 func (r *UserRepository) GetPlayer(id string) (*Player, error) {
@@ -17,5 +20,9 @@ func (r *UserRepository) GetPlayer(id string) (*Player, error) {
 	if player, ok = r.players[id]; ok {
 		return player, nil
 	}
-	return nil, errors.New("player not found")
+	return nil, errors.New("Player " + id + " not found")
+}
+
+func (r *UserRepository) AddPlayer(player *Player) {
+	r.players[player.id] = player
 }

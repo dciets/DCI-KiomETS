@@ -12,7 +12,7 @@ func TestBattleOnNonBarricadeTerrainWithOneAttackerWithEqualForce(t *testing.T) 
 
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 2)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	terrain.SetOwner(p1, 1)
 	terrain.AddToActionQueue(g1, nil)
@@ -33,7 +33,7 @@ func TestBattleOnNonBarricadeTerrainWithOneAttackerWithWinningAttacker(t *testin
 
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 3)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	terrain.SetOwner(p1, 1)
 	terrain.AddToActionQueue(g1, nil)
@@ -57,7 +57,7 @@ func TestBattleOnNonBarricadeTerrainWithTwoAttackersWithEqualForce(t *testing.T)
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 1)
 	var g2 *game.SoldierGroup = game.NewSoldierGroup(p3, 1)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	terrain.SetOwner(p1, 1)
 	terrain.AddToActionQueue(g1, nil)
@@ -81,7 +81,7 @@ func TestBattleOnNonBarricadeTerrainWithTwoAttackerWithWinningAttackerAndNotEnou
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 2)
 	var g2 *game.SoldierGroup = game.NewSoldierGroup(p3, 2)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	terrain.SetOwner(p1, 1)
 	terrain.AddToActionQueue(g1, nil)
@@ -105,7 +105,7 @@ func TestBattleOnNonBarricadeTerrainWithTwoAttackersWithWinningAttackerAndEnough
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 3)
 	var g2 *game.SoldierGroup = game.NewSoldierGroup(p3, 2)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	terrain.SetOwner(p1, 1)
 	terrain.AddToActionQueue(g1, nil)
@@ -127,7 +127,7 @@ func TestBattleOnBarricadeTerrainWithOneAttackerWithEqualForce(t *testing.T) {
 
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 7)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	var state game.TerrainState = &game.BarricadeTerrainState{
 		T: terrain,
@@ -153,7 +153,7 @@ func TestBattleOnBarricadeTerrainWithOneAttackerWithWinningAttacker(t *testing.T
 
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 8)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	var state game.TerrainState = &game.BarricadeTerrainState{
 		T: terrain,
@@ -179,7 +179,7 @@ func TestBattleOnNonBarricadeTerrainWithZeroDefender(t *testing.T) {
 
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 1)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	terrain.SetOwner(p1, 0)
 	terrain.AddToActionQueue(g1, nil)
@@ -200,7 +200,7 @@ func TestBattleOnBarrierTerrainWithZeroDefender(t *testing.T) {
 
 	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 1)
 
-	var terrain *game.Terrain = game.NewTerrain(uuid.Max)
+	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
 	var state game.TerrainState = &game.BarricadeTerrainState{
 		T: terrain,

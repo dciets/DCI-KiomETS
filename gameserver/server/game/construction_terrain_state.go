@@ -1,5 +1,7 @@
 package game
 
+import "server/game/serialisation"
+
 const TickToChangeBuilding uint32 = 20
 
 type ConstructionTerrainState struct {
@@ -17,4 +19,8 @@ func (c *ConstructionTerrainState) tick() {
 
 func (c *ConstructionTerrainState) getFightingFunctions() (fightFunction, fightFunction) {
 	return defaultTerrainF1Function, defaultTerrainF2Function
+}
+
+func (c *ConstructionTerrainState) getTerrainType() serialisation.TerrainType {
+	return serialisation.Construction
 }

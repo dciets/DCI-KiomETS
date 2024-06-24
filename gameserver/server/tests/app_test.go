@@ -71,13 +71,19 @@ func TestApplicationIsWorking(t *testing.T) {
 	}
 
 	ret = <-*duplicateChannel
-	if ret != "[]" {
+	if ret != "{\"type\":\"action\",\"content\":\"{\\\"players\\\":[],\\\"terrains\\\":[],\\\"pipes\\\":[]}\"}" {
 		t.Log(ret)
 		t.Fatal("Update error")
 	}
 
 	ret = <-*duplicateChannel
-	if ret != "[]" {
+	if ret != "{\"type\":\"action\",\"content\":\"{\\\"players\\\":[],\\\"terrains\\\":[],\\\"pipes\\\":[]}\"}" {
+		t.Log(ret)
+		t.Fatal("Update error")
+	}
+
+	ret = <-*duplicateChannel
+	if ret != "{\"type\":\"end\",\"content\":\"\"}" {
 		t.Log(ret)
 		t.Fatal("Update error")
 	}

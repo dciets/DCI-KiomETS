@@ -1,7 +1,10 @@
 package app
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"log"
+	"server/game"
 	"server/interfaces"
 	"strconv"
 	"strings"
@@ -49,6 +52,44 @@ func (c *CommandProcessor) stop() string {
 		return "1"
 	}
 	return "0"
+}
+
+func (c *CommandProcessor) connect(id string) bool {
+	var player *Player
+	var err error
+	player, err = c.userRepository.GetPlayer(id)
+	if err == nil {
+		if !c.gameRuntime.HasPlayer(player) {
+			c.gameRuntime.AddPlayer(player)
+		}
+		return true
+	} else {
+		log.Printf(err.Error())
+		return false
+	}
+}
+
+func (c *CommandProcessor) play(id string, actions string) {
+	log.Printf("actions from %s = %s", id, actions)
+	if c.gameRuntime.Status() {
+		var actionsObj []game.Action = make([]game.Action, 0)
+		var err error
+
+		err = json.Unmarshal([]byte(actions), &actionsObj)
+
+		if err != nil {
+			log.Printf("actions from %s got error %s", id, err.Error())
+		} else {
+			var player *Player
+			player, _ = c.userRepository.GetPlayer(id)
+			c.gameRuntime.Play(player.Name())
+		}
+	}
+}
+
+func (c *CommandProcessor) adminCreate(name string, id string) {
+	log.Printf("Super admin create %s with id %s", name, id)
+	c.userRepository.AddPlayer(NewPlayer(id, name))
 }
 
 func (c *CommandProcessor) Process(command string) {
@@ -103,5 +144,31 @@ func (c *CommandProcessor) Process(command string) {
 		c.superAdminListener.Stop()
 		c.adminListener.Stop()
 		break
+	case "action":
+		c.mutex.RLock()
+		if len(split) == 3 {
+			var decodedIdBytes []byte
+			var decodedActionBytes []byte
+			decodedIdBytes, _ = base64.StdEncoding.DecodeString(split[1])
+			decodedActionBytes, _ = base64.StdEncoding.DecodeString(split[2])
+			var decodedId string = string(decodedIdBytes)
+			var decodedAction string = string(decodedActionBytes)
+			if c.connect(decodedId) {
+				c.play(decodedId, decodedAction)
+			}
+		}
+		c.mutex.RUnlock()
+	case "admin-create":
+		c.mutex.Lock()
+		if len(split) == 3 {
+			var decodedNameBytes []byte
+			var decodedIdBytes []byte
+			decodedNameBytes, _ = base64.StdEncoding.DecodeString(split[1])
+			decodedIdBytes, _ = base64.StdEncoding.DecodeString(split[2])
+			var decodedName string = string(decodedNameBytes)
+			var decodedId string = string(decodedIdBytes)
+			c.adminCreate(decodedName, decodedId)
+		}
+		c.mutex.Unlock()
 	}
 }

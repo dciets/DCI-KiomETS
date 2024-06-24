@@ -1,10 +1,13 @@
 package game
 
-import "github.com/google/uuid"
+import (
+	"server/game/serialisation"
+)
 
 type TerrainState interface {
 	tick()
 	getFightingFunctions() (fightFunction, fightFunction)
+	getTerrainType() serialisation.TerrainType
 }
 
 type Terrain struct {
@@ -13,20 +16,26 @@ type Terrain struct {
 	incomingGroups []*SoldierGroup
 	owner          *Player
 	soldiers       *SoldierGroup
+	position       [2]float32
 }
 
-func NewTerrain(id uuid.UUID) *Terrain {
+func NewTerrain(id string) *Terrain {
 	return &Terrain{
-		id:       id.String(),
+		id:       id,
 		state:    &EmptyTerrainState{},
 		owner:    nil,
 		soldiers: nil,
+		position: [2]float32{0, 0},
 	}
 }
 
 func (t *Terrain) SetOwner(player *Player, soldierCount uint32) {
 	t.owner = player
 	t.soldiers = NewSoldierGroup(player, soldierCount)
+}
+
+func (t *Terrain) SetPosition(position [2]float32) {
+	t.position = position
 }
 
 func (t *Terrain) Tick() {
@@ -36,16 +45,18 @@ func (t *Terrain) Tick() {
 }
 
 func (t *Terrain) PostTick() {
-	var g1Function fightFunction
-	var g2Function fightFunction
-	g1Function, g2Function = t.state.getFightingFunctions()
-	var lastGroupStanding *SoldierGroup = battleNGroup(t.soldiers, t.incomingGroups, g1Function, g2Function)
-	t.soldiers = lastGroupStanding
-	if lastGroupStanding.player != t.owner {
-		// TODO : Tell the owner
-		t.owner = lastGroupStanding.player
+	if len(t.incomingGroups) > 0 {
+		var g1Function fightFunction
+		var g2Function fightFunction
+		g1Function, g2Function = t.state.getFightingFunctions()
+		var lastGroupStanding *SoldierGroup = battleNGroup(t.soldiers, t.incomingGroups, g1Function, g2Function)
+		t.soldiers = lastGroupStanding
+		if lastGroupStanding.player != t.owner {
+			// Todo : Tell owner
+			t.owner = lastGroupStanding.player
+		}
+		t.incomingGroups = []*SoldierGroup{}
 	}
-	t.incomingGroups = []*SoldierGroup{}
 }
 
 func (t *Terrain) GetId() string {
@@ -70,4 +81,15 @@ func (t *Terrain) GetNumberOfSoldiers() uint32 {
 
 func (t *Terrain) SetTerrainState(state TerrainState) {
 	t.state = state
+}
+
+func (t *Terrain) Serialize(playerNameIndexMap map[string]int) serialisation.TerrainSerialisation {
+	var index int = -1
+	var numberOfSoldier uint = 0
+	if t.owner != nil {
+		index = playerNameIndexMap[t.owner.name]
+		numberOfSoldier = uint(t.soldiers.count)
+	}
+
+	return *serialisation.NewTerrainSerialisation(t.state.getTerrainType(), index, numberOfSoldier)
 }
