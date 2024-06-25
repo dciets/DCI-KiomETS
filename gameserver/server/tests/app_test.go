@@ -52,20 +52,20 @@ func TestApplicationIsWorking(t *testing.T) {
 	*commChannel <- "set-max-tick 2"
 	*commChannel <- "set-time-per-tick 1000"
 
-	*commChannel <- "start"
+	*commChannel <- "start 00"
 
 	ret = <-*duplicateChannel
-	if ret != "1" {
+	if ret != "00 1" {
 		t.Log(ret)
 		t.Fatal("Start error")
 	}
 
 	<-time.NewTimer(time.Duration(10) * time.Millisecond).C
 
-	*commChannel <- "stop"
+	*commChannel <- "stop 00"
 
 	ret = <-*duplicateChannel
-	if ret != "1" {
+	if ret != "00 1" {
 		t.Log(ret)
 		t.Fatal("Stop error")
 	}
