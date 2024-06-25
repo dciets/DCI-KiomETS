@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	communications "webserver/Model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
@@ -75,6 +77,7 @@ func main() {
 func getHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got /api request\n")
 	io.WriteString(w, "Hello, HTTP!\n")
+	send_command("status")
 }
 
 func helloHandler(c *gin.Context) {
@@ -90,4 +93,36 @@ func getPort() string {
 		port = ":8080"
 	}
 	return port
+}
+
+func send_command(command string) string {
+	// send request to TCP port 10000 (localhost)
+	conn, err := net.Dial("tcp", "localhost:10001")
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		var connErr error
+		var readLen int
+
+		var comm = communications.NewCommunication(command, 0x11223344)
+		conn.Write((comm.AsByte()))
+		var buff = make([]byte, 8)
+		readLen, connErr = conn.Read(buff)
+		if connErr != nil {
+			log.Fatal(connErr)
+		} else if readLen != 8 {
+			log.Fatal("header should be of length 8")
+		} else {
+			var header, _ = communications.NewHeaderFromBytes(buff)
+			var messageBuff = make([]byte, header.GetMessageLength())
+			readLen, connErr = conn.Read(messageBuff)
+			if connErr != nil {
+				log.Fatal(connErr)
+			} else {
+				return string(messageBuff)
+			}
+		}
+
+	}
+	return ""
 }
