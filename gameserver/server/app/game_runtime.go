@@ -105,13 +105,12 @@ func (runtime *GameRuntime) HasPlayer(player *Player) bool {
 func (runtime *GameRuntime) AddPlayer(player *Player) {
 	if runtime.running {
 		runtime.currentGame.AddPlayer(player.Name())
-		// Add terrain if existing
 	}
 }
 
-func (runtime *GameRuntime) Play(playerName string) {
+func (runtime *GameRuntime) Play(playerName string, actions []game.Action) {
 	if runtime.running {
-
+		runtime.currentGame.Play(playerName, actions)
 	}
 }
 

@@ -18,6 +18,7 @@ type CommandProcessor struct {
 	adminListener      interfaces.Listener
 	superAdminListener interfaces.Listener
 	mutex              sync.RWMutex
+	addPlayerMutex     sync.Mutex
 }
 
 func NewCommandProcessor(userRepository *UserRepository, gameRuntime *GameRuntime, clientListener interfaces.Listener, adminListener interfaces.Listener, superAdminListener interfaces.Listener) *CommandProcessor {
@@ -60,7 +61,9 @@ func (c *CommandProcessor) connect(id string) bool {
 	player, err = c.userRepository.GetPlayer(id)
 	if err == nil {
 		if !c.gameRuntime.HasPlayer(player) {
+			c.addPlayerMutex.Lock()
 			c.gameRuntime.AddPlayer(player)
+			c.addPlayerMutex.Unlock()
 		}
 		return true
 	} else {
@@ -82,7 +85,7 @@ func (c *CommandProcessor) play(id string, actions string) {
 		} else {
 			var player *Player
 			player, _ = c.userRepository.GetPlayer(id)
-			c.gameRuntime.Play(player.Name())
+			c.gameRuntime.Play(player.Name(), actionsObj)
 		}
 	}
 }
