@@ -19,6 +19,7 @@ type CommandProcessor struct {
 	superAdminListener interfaces.Listener
 	mutex              sync.RWMutex
 	addPlayerMutex     sync.Mutex
+	adminId            uint8
 }
 
 func NewCommandProcessor(userRepository *UserRepository, gameRuntime *GameRuntime, clientListener interfaces.Listener, adminListener interfaces.Listener, superAdminListener interfaces.Listener) *CommandProcessor {
@@ -29,6 +30,7 @@ func NewCommandProcessor(userRepository *UserRepository, gameRuntime *GameRuntim
 		adminListener:      adminListener,
 		superAdminListener: superAdminListener,
 		mutex:              sync.RWMutex{},
+		adminId:            1,
 	}
 }
 
@@ -102,20 +104,26 @@ func (c *CommandProcessor) Process(command string) {
 	switch split[0] {
 	case "start":
 		c.mutex.Lock()
-		var ret = c.start()
-		_ = c.adminListener.Write(ret)
+		if len(split) == 2 {
+			var ret = c.start()
+			_ = c.adminListener.Write(split[1] + " " + ret)
+		}
 		c.mutex.Unlock()
 		break
 	case "stop":
 		c.mutex.Lock()
-		var ret = c.stop()
-		_ = c.adminListener.Write(ret)
+		if len(split) == 2 {
+			var ret = c.stop()
+			_ = c.adminListener.Write(split[1] + " " + ret)
+		}
 		c.mutex.Unlock()
 		break
 	case "status":
 		c.mutex.Lock()
-		var ret = c.status()
-		_ = c.adminListener.Write(ret)
+		if len(split) == 2 {
+			var ret = c.status()
+			_ = c.adminListener.Write(split[1] + " " + ret)
+		}
 		c.mutex.Unlock()
 		break
 	case "set-max-tick":
@@ -173,5 +181,14 @@ func (c *CommandProcessor) Process(command string) {
 			c.adminCreate(decodedName, decodedId)
 		}
 		c.mutex.Unlock()
+	case "id-assign":
+		c.mutex.Lock()
+		if len(split) == 1 {
+			var id string = strconv.Itoa(int(c.adminId))
+			_ = c.adminListener.Write("01 " + id)
+			c.adminId++
+		}
+		c.mutex.Unlock()
+		break
 	}
 }
