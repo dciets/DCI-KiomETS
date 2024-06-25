@@ -190,5 +190,21 @@ func (c *CommandProcessor) Process(command string) {
 		}
 		c.mutex.Unlock()
 		break
+	case "new-player":
+		c.mutex.Lock()
+		if len(split) == 3 {
+			var messageId string = split[1]
+			var decodedPlayerNameBytes []byte
+			decodedPlayerNameBytes, _ = base64.StdEncoding.DecodeString(split[2])
+			var decodedPlayerName string = string(decodedPlayerNameBytes)
+			if c.userRepository.DoesPlayerExist(decodedPlayerName) {
+				_ = c.adminListener.Write(messageId)
+			} else {
+				var id string = c.userRepository.CreatePlayer(decodedPlayerName)
+				_ = c.adminListener.Write(messageId + " " + base64.StdEncoding.EncodeToString([]byte(id)))
+			}
+		}
+		c.mutex.Unlock()
+		break
 	}
 }
