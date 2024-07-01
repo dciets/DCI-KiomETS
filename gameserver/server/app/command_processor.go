@@ -211,7 +211,35 @@ func (c *CommandProcessor) Process(command string) {
 		if len(split) == 2 {
 			var messageId string = split[1]
 			var players = c.userRepository.SerializePlayers()
-			_ = c.adminListener.Write(messageId + " " + players)
+
+			_ = c.adminListener.Write(messageId + " " + base64.StdEncoding.EncodeToString([]byte(players)))
+		}
+		c.mutex.Unlock()
+		break
+	case "set-parameters":
+		c.mutex.Lock()
+		if len(split) == 3 {
+			var parameters Parameters
+			var decodedParametersBytes []byte
+			decodedParametersBytes, _ = base64.StdEncoding.DecodeString(split[2])
+
+			var err error
+			err = json.Unmarshal(decodedParametersBytes, &parameters)
+			if err == nil {
+				c.gameRuntime.SetParameters(parameters)
+			}
+		}
+		c.mutex.Unlock()
+		break
+	case "get-parameters":
+		c.mutex.Lock()
+		if len(split) == 2 {
+			var messageId string = split[1]
+			var parameters Parameters = c.gameRuntime.GetParameters()
+
+			var encodedParametersBytes []byte
+			encodedParametersBytes, _ = json.Marshal(parameters)
+			_ = c.adminListener.Write(messageId + " " + base64.StdEncoding.EncodeToString(encodedParametersBytes))
 		}
 		c.mutex.Unlock()
 		break

@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+type Parameters struct {
+	MapSize              uint `json:"mapSize"`
+	SoldierSpeed         uint `json:"soldierSpeed"`
+	SoldierCreationSpeed uint `json:"soldierCreationSpeed"`
+	TerrainChangeSpeed   uint `json:"terrainChangeSpeed"`
+	GameLength           uint `json:"gameLength"`
+}
+
 type GameRuntime struct {
 	maxTickPerGame       uint32
 	currentGame          *game.Game
@@ -114,8 +122,20 @@ func (runtime *GameRuntime) Play(playerName string, actions []game.Action) {
 	}
 }
 
-func (runtime *GameRuntime) SetParameter(parameterName string, parameterValue uint) {
-	switch parameterName {
+func (runtime *GameRuntime) SetParameters(parameters Parameters) {
+	runtime.maxTickPerGame = uint32(parameters.GameLength)
+	runtime.soldierMovementSpeed = uint32(parameters.SoldierSpeed)
+	runtime.soldierCreationSpeed = uint32(parameters.SoldierCreationSpeed)
+	runtime.terrainChangeSpeed = uint32(parameters.TerrainChangeSpeed)
+	runtime.mapSize = uint32(parameters.MapSize)
+}
 
+func (runtime *GameRuntime) GetParameters() Parameters {
+	return Parameters{
+		MapSize:              uint(runtime.mapSize),
+		SoldierSpeed:         uint(runtime.soldierMovementSpeed),
+		SoldierCreationSpeed: uint(runtime.soldierCreationSpeed),
+		TerrainChangeSpeed:   uint(runtime.terrainChangeSpeed),
+		GameLength:           uint(runtime.maxTickPerGame),
 	}
 }
