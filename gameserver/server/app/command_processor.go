@@ -18,6 +18,8 @@ type CommandProcessor struct {
 	adminListener      interfaces.Listener
 	superAdminListener interfaces.Listener
 	mutex              sync.RWMutex
+	addPlayerMutex     sync.Mutex
+	adminId            uint8
 }
 
 func NewCommandProcessor(userRepository *UserRepository, gameRuntime *GameRuntime, clientListener interfaces.Listener, adminListener interfaces.Listener, superAdminListener interfaces.Listener) *CommandProcessor {
@@ -28,6 +30,7 @@ func NewCommandProcessor(userRepository *UserRepository, gameRuntime *GameRuntim
 		adminListener:      adminListener,
 		superAdminListener: superAdminListener,
 		mutex:              sync.RWMutex{},
+		adminId:            1,
 	}
 }
 
@@ -60,7 +63,9 @@ func (c *CommandProcessor) connect(id string) bool {
 	player, err = c.userRepository.GetPlayer(id)
 	if err == nil {
 		if !c.gameRuntime.HasPlayer(player) {
+			c.addPlayerMutex.Lock()
 			c.gameRuntime.AddPlayer(player)
+			c.addPlayerMutex.Unlock()
 		}
 		return true
 	} else {
@@ -82,7 +87,7 @@ func (c *CommandProcessor) play(id string, actions string) {
 		} else {
 			var player *Player
 			player, _ = c.userRepository.GetPlayer(id)
-			c.gameRuntime.Play(player.Name())
+			c.gameRuntime.Play(player.Name(), actionsObj)
 		}
 	}
 }
@@ -99,20 +104,26 @@ func (c *CommandProcessor) Process(command string) {
 	switch split[0] {
 	case "start":
 		c.mutex.Lock()
-		var ret = c.start()
-		_ = c.adminListener.Write(ret)
+		if len(split) == 2 {
+			var ret = c.start()
+			_ = c.adminListener.Write(split[1] + " " + ret)
+		}
 		c.mutex.Unlock()
 		break
 	case "stop":
 		c.mutex.Lock()
-		var ret = c.stop()
-		_ = c.adminListener.Write(ret)
+		if len(split) == 2 {
+			var ret = c.stop()
+			_ = c.adminListener.Write(split[1] + " " + ret)
+		}
 		c.mutex.Unlock()
 		break
 	case "status":
 		c.mutex.Lock()
-		var ret = c.status()
-		_ = c.adminListener.Write(ret)
+		if len(split) == 2 {
+			var ret = c.status()
+			_ = c.adminListener.Write(split[1] + " " + ret)
+		}
 		c.mutex.Unlock()
 		break
 	case "set-max-tick":
@@ -170,5 +181,30 @@ func (c *CommandProcessor) Process(command string) {
 			c.adminCreate(decodedName, decodedId)
 		}
 		c.mutex.Unlock()
+	case "id-assign":
+		c.mutex.Lock()
+		if len(split) == 1 {
+			var id string = strconv.Itoa(int(c.adminId))
+			_ = c.adminListener.Write("01 " + id)
+			c.adminId++
+		}
+		c.mutex.Unlock()
+		break
+	case "new-player":
+		c.mutex.Lock()
+		if len(split) == 3 {
+			var messageId string = split[1]
+			var decodedPlayerNameBytes []byte
+			decodedPlayerNameBytes, _ = base64.StdEncoding.DecodeString(split[2])
+			var decodedPlayerName string = string(decodedPlayerNameBytes)
+			if c.userRepository.DoesPlayerExist(decodedPlayerName) {
+				_ = c.adminListener.Write(messageId)
+			} else {
+				var id string = c.userRepository.CreatePlayer(decodedPlayerName)
+				_ = c.adminListener.Write(messageId + " " + base64.StdEncoding.EncodeToString([]byte(id)))
+			}
+		}
+		c.mutex.Unlock()
+		break
 	}
 }

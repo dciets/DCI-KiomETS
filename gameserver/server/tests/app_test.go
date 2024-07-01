@@ -52,33 +52,36 @@ func TestApplicationIsWorking(t *testing.T) {
 	*commChannel <- "set-max-tick 2"
 	*commChannel <- "set-time-per-tick 1000"
 
-	*commChannel <- "start"
+	*commChannel <- "start 00"
 
 	ret = <-*duplicateChannel
-	if ret != "1" {
+	if ret != "00 1" {
 		t.Log(ret)
 		t.Fatal("Start error")
 	}
 
 	<-time.NewTimer(time.Duration(10) * time.Millisecond).C
 
-	*commChannel <- "stop"
+	*commChannel <- "stop 00"
 
 	ret = <-*duplicateChannel
-	if ret != "1" {
+	if ret != "00 1" {
 		t.Log(ret)
 		t.Fatal("Stop error")
 	}
 
+	var updateString string = "{\"type\":\"action\",\"content\":\"{\\\"players\\\":[],\\\"terrains\\\":[{\\\"terrainType\\\":2,\\\"ownerIndex\\\":-1,\\\"numberOfSoldier\\\":0,\\\"position\\\":[0,0]},{\\\"terrainType\\\":2,\\\"ownerIndex\\\":-1,\\\"numberOfSoldier\\\":0,\\\"position\\\":[1,0]},{\\\"terrainType\\\":2,\\\"ownerIndex\\\":-1,\\\"numberOfSoldier\\\":0,\\\"position\\\":[0.5,0.866]},{\\\"terrainType\\\":2,\\\"ownerIndex\\\":-1,\\\"numberOfSoldier\\\":0,\\\"position\\\":[-0.5,0.866]},{\\\"terrainType\\\":2,\\\"ownerIndex\\\":-1,\\\"numberOfSoldier\\\":0,\\\"position\\\":[-1,0]},{\\\"terrainType\\\":2,\\\"ownerIndex\\\":-1,\\\"numberOfSoldier\\\":0,\\\"position\\\":[-0.5,-0.866]},{\\\"terrainType\\\":2,\\\"ownerIndex\\\":-1,\\\"numberOfSoldier\\\":0,\\\"position\\\":[0.5,-0.866]}],\\\"pipes\\\":[{\\\"length\\\":2,\\\"first\\\":0,\\\"second\\\":1,\\\"soldiers\\\":[]},{\\\"length\\\":2,\\\"first\\\":0,\\\"second\\\":2,\\\"soldiers\\\":[]},{\\\"length\\\":2,\\\"first\\\":0,\\\"second\\\":3,\\\"soldiers\\\":[]},{\\\"length\\\":2,\\\"first\\\":0,\\\"second\\\":4,\\\"soldiers\\\":[]},{\\\"length\\\":2,\\\"first\\\":0,\\\"second\\\":5,\\\"soldiers\\\":[]},{\\\"length\\\":2,\\\"first\\\":0,\\\"second\\\":6,\\\"soldiers\\\":[]}]}\"}"
 	ret = <-*duplicateChannel
-	if ret != "{\"type\":\"action\",\"content\":\"{\\\"players\\\":[],\\\"terrains\\\":[],\\\"pipes\\\":[]}\"}" {
+	if ret != updateString {
 		t.Log(ret)
+		t.Log(updateString)
 		t.Fatal("Update error")
 	}
 
 	ret = <-*duplicateChannel
-	if ret != "{\"type\":\"action\",\"content\":\"{\\\"players\\\":[],\\\"terrains\\\":[],\\\"pipes\\\":[]}\"}" {
+	if ret != updateString {
 		t.Log(ret)
+		t.Log(updateString)
 		t.Fatal("Update error")
 	}
 

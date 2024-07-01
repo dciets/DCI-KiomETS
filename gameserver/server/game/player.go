@@ -36,3 +36,16 @@ func NewPlayer(name string, color Color) *Player {
 func (p *Player) Serialize() serialisation.PlayerSerialisation {
 	return *serialisation.NewPlayerSerialisation(p.name, p.color.String(), int(p.numberOfKill), p.possessedTerrains)
 }
+
+func (p *Player) AddTerrain(terrainId string) {
+	p.possessedTerrains = append(p.possessedTerrains, terrainId)
+}
+
+func (p *Player) RemoveTerrain(terrainId string) {
+	for i, t := range p.possessedTerrains {
+		if t == terrainId {
+			p.possessedTerrains = append(p.possessedTerrains[:i], p.possessedTerrains[i+1:]...)
+			return
+		}
+	}
+}

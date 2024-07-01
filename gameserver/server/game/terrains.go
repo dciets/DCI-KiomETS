@@ -17,20 +17,23 @@ type Terrain struct {
 	owner          *Player
 	soldiers       *SoldierGroup
 	position       [2]float32
+	currentAction  ExecutableAction
 }
 
 func NewTerrain(id string) *Terrain {
 	return &Terrain{
-		id:       id,
-		state:    &EmptyTerrainState{},
-		owner:    nil,
-		soldiers: nil,
-		position: [2]float32{0, 0},
+		id:            id,
+		state:         &EmptyTerrainState{},
+		owner:         nil,
+		soldiers:      nil,
+		position:      [2]float32{0, 0},
+		currentAction: nil,
 	}
 }
 
 func (t *Terrain) SetOwner(player *Player, soldierCount uint32) {
 	t.owner = player
+	player.AddTerrain(t.id)
 	t.soldiers = NewSoldierGroup(player, soldierCount)
 }
 
@@ -39,7 +42,10 @@ func (t *Terrain) SetPosition(position [2]float32) {
 }
 
 func (t *Terrain) Tick() {
-	// TODO : Gérer les ordres
+	if t.currentAction != nil {
+		t.currentAction.ExecuteAction(t)
+		t.currentAction = nil
+	}
 
 	t.state.tick()
 }
@@ -52,8 +58,9 @@ func (t *Terrain) PostTick() {
 		var lastGroupStanding *SoldierGroup = battleNGroup(t.soldiers, t.incomingGroups, g1Function, g2Function)
 		t.soldiers = lastGroupStanding
 		if lastGroupStanding.player != t.owner {
-			// Todo : Tell owner
+			t.owner.RemoveTerrain(t.id)
 			t.owner = lastGroupStanding.player
+			lastGroupStanding.player.AddTerrain(t.id)
 		}
 		t.incomingGroups = []*SoldierGroup{}
 	}
@@ -91,5 +98,5 @@ func (t *Terrain) Serialize(playerNameIndexMap map[string]int) serialisation.Ter
 		numberOfSoldier = uint(t.soldiers.count)
 	}
 
-	return *serialisation.NewTerrainSerialisation(t.state.getTerrainType(), index, numberOfSoldier)
+	return *serialisation.NewTerrainSerialisation(t.state.getTerrainType(), index, numberOfSoldier, t.position)
 }
