@@ -2,18 +2,22 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
-	communications "webserver/Model"
-
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/mux"
 )
 
 const WEBAPP_PATH = "/app/dist/frontend"
+const GAME_SERVER_URL = "localhost"
+const (
+	USER_CHANNEL        = "10000"
+	ADMIN_CHANNEL       = "10001"
+	SUPER_ADMIN_CHANNEL = "10002"
+)
 
 func main() {
 	// fs := http.FileServer(http.Dir(WEBAPP_PATH))
@@ -41,9 +45,29 @@ func main() {
 	// GORILLA MUX
 	//
 
+	admin_conn, err := net.Dial("tcp", GAME_SERVER_URL+":"+ADMIN_CHANNEL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer admin_conn.Close()
+	client_conn, err := net.Dial("tcp", GAME_SERVER_URL+":"+USER_CHANNEL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client_conn.Close()
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api", getHello).Methods(http.MethodGet)
+	router.HandleFunc("/api/bot", getBots).Methods(http.MethodGet)
+	router.HandleFunc("/api/bot", createBot).Methods(http.MethodPost)
+	router.HandleFunc("/api/scoreboard", scoreboard).Methods(http.MethodGet)
+	router.HandleFunc("/api/game", getGame).Methods(http.MethodGet)
+	router.HandleFunc("/api/game", setGame).Methods(http.MethodPost)
+	router.HandleFunc("/api/status", getStatus).Methods(http.MethodGet)
+	router.HandleFunc("/api/start", startGame).Methods(http.MethodPost)
+	router.HandleFunc("/api/stop", stopGame).Methods(http.MethodPost)
+
 	// redirects all unhandled paths to the frontend
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("/app/dist/frontend/")))
 
@@ -77,7 +101,7 @@ func main() {
 func getHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got /api request\n")
 	io.WriteString(w, "Hello, HTTP!\n")
-	send_command("status")
+	send_command("status", ADMIN_CHANNEL)
 }
 
 func helloHandler(c *gin.Context) {
@@ -95,34 +119,40 @@ func getPort() string {
 	return port
 }
 
-func send_command(command string) string {
-	// send request to TCP port 10000 (localhost)
-	conn, err := net.Dial("tcp", "localhost:10001")
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		var connErr error
-		var readLen int
+func getBots(w http.ResponseWriter, r *http.Request) {
+	result := send_command("all-player", ADMIN_CHANNEL)
+	fmt.Fprintf(w, result)
+}
 
-		var comm = communications.NewCommunication(command, 0x11223344)
-		conn.Write((comm.AsByte()))
-		var buff = make([]byte, 8)
-		readLen, connErr = conn.Read(buff)
-		if connErr != nil {
-			log.Fatal(connErr)
-		} else if readLen != 8 {
-			log.Fatal("header should be of length 8")
-		} else {
-			var header, _ = communications.NewHeaderFromBytes(buff)
-			var messageBuff = make([]byte, header.GetMessageLength())
-			readLen, connErr = conn.Read(messageBuff)
-			if connErr != nil {
-				log.Fatal(connErr)
-			} else {
-				return string(messageBuff)
-			}
-		}
+func createBot(w http.ResponseWriter, r *http.Request) {
+	result := send_command("new-player", ADMIN_CHANNEL)
+	fmt.Fprintf(w, result)
+}
 
-	}
-	return ""
+func scoreboard(w http.ResponseWriter, r *http.Request) {
+	result := read_channel(USER_CHANNEL)
+	fmt.Fprintf(w, result)
+}
+
+func getGame(w http.ResponseWriter, r *http.Request) {
+	result := send_command("get-parameters", ADMIN_CHANNEL)
+	fmt.Fprintf(w, result)
+}
+func setGame(w http.ResponseWriter, r *http.Request) {
+	result := send_command("set-parameters", ADMIN_CHANNEL)
+	fmt.Fprintf(w, result)
+}
+
+func startGame(w http.ResponseWriter, r *http.Request) {
+	result := send_command("start", ADMIN_CHANNEL)
+	fmt.Fprintf(w, result)
+}
+func stopGame(w http.ResponseWriter, r *http.Request) {
+	result := send_command("stop", ADMIN_CHANNEL)
+	fmt.Fprintf(w, result)
+}
+
+func getStatus(w http.ResponseWriter, r *http.Request) {
+	result := send_command("status", ADMIN_CHANNEL)
+	fmt.Fprintf(w, result)
 }

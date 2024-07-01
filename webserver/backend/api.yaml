@@ -7,52 +7,52 @@ servers:
     - url: http://localhost:8080
       description: Local server
 tags:
-  - name: User
-    description: User operations
+  - name: Bot
+    description: Bot operations
   - name: Scoreboard
     description: Scoreboard operations
-  - name: Parameters
-    description: Parameters operations
   - name: Game
     description: Game operations
 paths:
-  /api/user:
+  /api/bot:
     get:
       tags:
-        - User
-      summary: Get user
-      security:
-        - auth: [admin,user]
+        - Bot
+      summary: Get all bots
+      security: []
       responses:
         200:
           description: OK
 
     post:
       tags:
-        - User
-      summary: Create user
+        - Bot
+      summary: Create a new bot and return its uid
       security: []
       parameters:
-        - name: user
+        - name: botName
           in: query
           required: true
           schema:
-            $ref: '#/components/schemas/User'
+            type: string
       responses:
         201:
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  uid:
+                    type: string
+                    example: "123ABC"
 
   /api/scoreboard:
     get:
       tags:
         - Scoreboard
       summary: Get scoreboard
-      security:
-        - auth: [admin, user]
+      security: []
       responses:
         200:
           description: OK
@@ -63,13 +63,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/Scoreboard'
 
-  /api/parameters/{id}:
+  /api/game:
     get:
       tags:
-        - Parameters
-      summary: Get parameters for User id
-      security:
-        - auth: [admin, user]
+        - Game
+      summary: Get parameters for the current game
+      security: []
       parameters:
         - name: id
           in: path
@@ -80,7 +79,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Parameters'
+                type: object
+                properties:
+                  parameters:
+                    $ref: '#/components/schemas/Parameters'
         404:
           description: User Not Found
         401:
@@ -89,10 +91,10 @@ paths:
             description: Forbidden
     put:
         tags:
-            - Parameters
-        summary: Update parameters for User id
+            - Game
+        summary: Update parameters for the current game
         security:
-            - auth: [admin, user]
+            - auth: [admin]
         parameters:
             - name: id
               in: path
@@ -108,7 +110,10 @@ paths:
               content:
                 application/json:
                   schema:
-                    $ref: '#/components/schemas/Parameters'
+                    type: object
+                    properties:
+                      parameters:
+                        $ref: '#/components/schemas/Parameters'
             404:
               description: User Not Found
             401:
@@ -156,7 +161,7 @@ paths:
         403:
             description: Forbidden
         409:
-            description: Game not started
+            description: No Game started
 components:
   schemas:
     Scoreboard:
@@ -168,15 +173,6 @@ components:
               type: string
           score:
               type: integer
-    User:
-        type: object
-        properties:
-          id:
-              type: integer
-          name:
-              type: string
-          email:
-              type: string
     Parameters:
         type: object
         properties:
