@@ -206,5 +206,14 @@ func (c *CommandProcessor) Process(command string) {
 		}
 		c.mutex.Unlock()
 		break
+	case "all-player":
+		c.mutex.Lock()
+		if len(split) == 2 {
+			var messageId string = split[1]
+			var players = c.userRepository.SerializePlayers()
+			_ = c.adminListener.Write(messageId + " " + players)
+		}
+		c.mutex.Unlock()
+		break
 	}
 }

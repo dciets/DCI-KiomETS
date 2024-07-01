@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/google/uuid"
 )
@@ -65,4 +66,16 @@ func (r *UserRepository) CreatePlayer(name string) string {
 	var id string = generateId(r.usedIds)
 	r.AddPlayer(NewPlayer(id, name))
 	return id
+}
+
+func (r *UserRepository) SerializePlayers() string {
+	var players []PlayerSerialisation
+	var i int = 0
+	for _, player := range r.players {
+		players[i] = player.Serialise()
+		i++
+	}
+	var content []byte
+	content, _ = json.Marshal(players)
+	return string(content)
 }

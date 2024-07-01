@@ -1,5 +1,10 @@
 package app
 
+type PlayerSerialisation struct {
+	id   string `json:"id"`
+	name string `json:"name"`
+}
+
 type Player struct {
 	id     string
 	name   string
@@ -16,4 +21,11 @@ func (p *Player) Id() string {
 
 func (p *Player) Name() string {
 	return p.name
+}
+
+func (p *Player) Serialise() PlayerSerialisation {
+	return PlayerSerialisation{
+		id:   p.id,
+		name: p.name,
+	}
 }
