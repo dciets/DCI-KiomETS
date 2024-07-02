@@ -107,7 +107,9 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		t.mut.Lock()
 		readByte, connErr = conn.Read(protocol)
 
-		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) {
+		var opErr *net.OpError = &net.OpError{}
+
+		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) || errors.As(connErr, &opErr) {
 			t.mut.Unlock()
 			return
 		}
@@ -137,7 +139,7 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		readByte, connErr = conn.Read(messageBuff)
 		t.mut.Unlock()
 
-		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) {
+		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) || errors.As(connErr, &opErr) {
 			return
 		}
 
