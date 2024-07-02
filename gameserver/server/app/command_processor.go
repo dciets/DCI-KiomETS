@@ -227,7 +227,10 @@ func (c *CommandProcessor) Process(command string) {
 			err = json.Unmarshal(decodedParametersBytes, &parameters)
 			if err == nil {
 				c.gameRuntime.SetParameters(parameters)
+			} else {
+				log.Printf("Set parameters error: %s\n", string(decodedParametersBytes))
 			}
+			_ = c.adminListener.Write("")
 		}
 		c.mutex.Unlock()
 		break
