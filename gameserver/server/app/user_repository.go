@@ -68,11 +68,23 @@ func (r *UserRepository) CreatePlayer(name string) string {
 	return id
 }
 
-func (r *UserRepository) SerializePlayers() string {
-	var players []PlayerSerialisation
+func (r *UserRepository) SerialisePlayers() string {
+	var players []PlayerSerialisation = make([]PlayerSerialisation, len(r.players))
 	var i int = 0
 	for _, player := range r.players {
 		players[i] = player.Serialise()
+		i++
+	}
+	var content []byte
+	content, _ = json.Marshal(players)
+	return string(content)
+}
+
+func (r *UserRepository) SerialisePlayersScore() string {
+	var players []PlayerScoreSerialisation = make([]PlayerScoreSerialisation, len(r.players))
+	var i int = 0
+	for _, player := range r.players {
+		players[i] = player.SerialiseScore()
 		i++
 	}
 	var content []byte

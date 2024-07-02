@@ -115,7 +115,7 @@ func (application *Application) Start(applicationBootstrapChannel *chan bool) {
 	}()
 
 	application.UserRepository = NewUserRepository()
-	application.GameRuntime = NewGameRuntime(clientChannelListener)
+	application.GameRuntime = NewGameRuntime(clientChannelListener, application.UserRepository)
 	application.CommandProcessor = NewCommandProcessor(application.UserRepository, application.GameRuntime, clientChannelListener, adminChannelListener, superAdminChannelListener)
 
 	if applicationBootstrapChannel != nil {

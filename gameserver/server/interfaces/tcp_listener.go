@@ -21,6 +21,7 @@ type TcpListener struct {
 	callWhenListening *chan bool
 	magic             uint32
 	mut               sync.Mutex
+	writeMutex        sync.Mutex
 }
 
 func NewTcpListener(port uint32, receiver *chan string, magic uint32) *TcpListener {
@@ -74,12 +75,14 @@ func (t *TcpListener) Write(message string) error {
 	}
 	var hasError bool = false
 	var communication *communications.Communication = communications.NewCommunication(message, t.magic)
+	t.writeMutex.Lock()
 	for _, conn := range t.connections {
 		_, err := conn.Write(communication.AsByte())
 		if err != nil {
 			hasError = true
 		}
 	}
+	t.writeMutex.Unlock()
 
 	if hasError {
 		return errors.New("write error")

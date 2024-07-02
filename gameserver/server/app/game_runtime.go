@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log"
 	"server/communications"
 	"server/game"
 	"server/interfaces"
@@ -26,10 +27,12 @@ type GameRuntime struct {
 	soldierMovementSpeed uint32
 	soldierCreationSpeed uint32
 	terrainChangeSpeed   uint32
+	userRepository       *UserRepository
 }
 
 func (runtime *GameRuntime) tick() {
 	runtime.currentGame.Tick()
+
 	_ = runtime.gameListener.Write(communications.NewMessage("action", runtime.currentGame.Serialize()).String())
 }
 
@@ -47,17 +50,24 @@ func (runtime *GameRuntime) startNewGame() {
 
 		var duration time.Duration = time.Since(start)
 		if uint32(duration.Milliseconds()) > timePerTick {
-			// TODO : Log time too short
+			log.Print("UPDATE TOO LONG")
 		}
 		_ = <-ticker.C
 	}
 	ticker.Stop()
 	_ = runtime.gameListener.Write(communications.NewMessage("end", "").String())
-	// TODO : Collect scores
+
+	for _, player := range runtime.userRepository.players {
+		var pt uint32 = runtime.currentGame.CalculatePlayerScore(player.name)
+		player.points += pt
+	}
+
+	_ = runtime.gameListener.Write(communications.NewMessage("scoreboard", runtime.userRepository.SerialisePlayersScore()).String())
+
 	runtime.currentGame = nil
 }
 
-func NewGameRuntime(gameListener interfaces.Listener) *GameRuntime {
+func NewGameRuntime(gameListener interfaces.Listener, repository *UserRepository) *GameRuntime {
 	var runtime *GameRuntime = &GameRuntime{
 		maxTickPerGame:       12000,
 		currentGame:          nil,
@@ -69,6 +79,7 @@ func NewGameRuntime(gameListener interfaces.Listener) *GameRuntime {
 		soldierMovementSpeed: 1,
 		soldierCreationSpeed: 1,
 		terrainChangeSpeed:   1,
+		userRepository:       repository,
 	}
 
 	return runtime

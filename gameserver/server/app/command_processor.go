@@ -210,7 +210,7 @@ func (c *CommandProcessor) Process(command string) {
 		c.mutex.Lock()
 		if len(split) == 2 {
 			var messageId string = split[1]
-			var players = c.userRepository.SerializePlayers()
+			var players = c.userRepository.SerialisePlayers()
 
 			_ = c.adminListener.Write(messageId + " " + base64.StdEncoding.EncodeToString([]byte(players)))
 		}

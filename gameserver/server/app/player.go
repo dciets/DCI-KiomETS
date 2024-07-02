@@ -1,8 +1,13 @@
 package app
 
 type PlayerSerialisation struct {
-	id   string `json:"id"`
-	name string `json:"name"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type PlayerScoreSerialisation struct {
+	Name  string `json:"name"`
+	Score uint   `json:"score"`
 }
 
 type Player struct {
@@ -25,7 +30,14 @@ func (p *Player) Name() string {
 
 func (p *Player) Serialise() PlayerSerialisation {
 	return PlayerSerialisation{
-		id:   p.id,
-		name: p.name,
+		Id:   p.id,
+		Name: p.name,
+	}
+}
+
+func (p *Player) SerialiseScore() PlayerScoreSerialisation {
+	return PlayerScoreSerialisation{
+		Name:  p.name,
+		Score: uint(p.points),
 	}
 }
