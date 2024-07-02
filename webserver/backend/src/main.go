@@ -45,17 +45,6 @@ func main() {
 	// GORILLA MUX
 	//
 
-	admin_conn, err := net.Dial("tcp", GAME_SERVER_URL+":"+ADMIN_CHANNEL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer admin_conn.Close()
-	client_conn, err := net.Dial("tcp", GAME_SERVER_URL+":"+USER_CHANNEL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client_conn.Close()
-
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api", getHello).Methods(http.MethodGet)
@@ -120,39 +109,71 @@ func getPort() string {
 }
 
 func getBots(w http.ResponseWriter, r *http.Request) {
-	result := send_command("all-player", ADMIN_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "get-players"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
 
 func createBot(w http.ResponseWriter, r *http.Request) {
-	result := send_command("new-player", ADMIN_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "create-player"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
 
 func scoreboard(w http.ResponseWriter, r *http.Request) {
-	result := read_channel(USER_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "get-scoreboard"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
 
 func getGame(w http.ResponseWriter, r *http.Request) {
-	result := send_command("get-parameters", ADMIN_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "get-parameters"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
 func setGame(w http.ResponseWriter, r *http.Request) {
-	result := send_command("set-parameters", ADMIN_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "set-parameters"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
 
 func startGame(w http.ResponseWriter, r *http.Request) {
-	result := send_command("start", ADMIN_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "start"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
 func stopGame(w http.ResponseWriter, r *http.Request) {
-	result := send_command("stop", ADMIN_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "stop"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
-	result := send_command("status", ADMIN_CHANNEL)
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "status"
+	result := <-channel
 	fmt.Fprintf(w, result)
 }
