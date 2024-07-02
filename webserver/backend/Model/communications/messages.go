@@ -10,6 +10,11 @@ type Message struct {
 func NewMessage(Type string, content string) *Message {
 	return &Message{Type: Type, Content: content}
 }
+func fromJson(jsonStr string) *Message {
+	var msg Message
+	json.Unmarshal([]byte(jsonStr), &msg)
+	return &msg
+}
 
 func (m *Message) String() string {
 	var msg []byte

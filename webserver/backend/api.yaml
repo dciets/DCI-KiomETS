@@ -176,15 +176,15 @@ components:
     Parameters:
         type: object
         properties:
-          map_length:
+          mapSize:
               type: integer
-          soldier_speed:
+          soldierSpeed:
               type: integer
-          soldier_creation_speed:
+          soldierCreationSpeed:
               type: integer
-          terrain_change_speed:
+          terrainChangeSpeed:
               type: integer
-          game_length:
+          gameLength:
               type: integer
   securitySchemes:
     auth:
