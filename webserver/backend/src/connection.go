@@ -7,7 +7,6 @@ import (
 	"webserver/Model/communications"
 )
 
-
 type MutexChanQueue struct {
 	mu    sync.Mutex
 	queue []chan string
@@ -30,15 +29,15 @@ func (q *MutexChanQueue) Pop() chan string {
 	return c
 }
 
-type clienConnObj struct {
-	conn    net.Conn
-	game chan string
+type clientConnObj struct {
+	conn       net.Conn
+	game       chan string
 	scoreboard chan string
 }
 type adminQueueObj struct {
-	conn    net.Conn
+	conn     net.Conn
 	channels MutexChanQueue
-
+}
 type Connection struct {
 	clientConn clientConnObj
 	adminQueue adminQueueObj
@@ -78,11 +77,11 @@ func (c *Connection) SendCommand() {
 	var connErr error
 	var readLen int
 	for {
-		if len(c.adminQueue.channels.queue)!=0 {
+		if len(c.adminQueue.channels.queue) != 0 {
 			channel := c.adminQueue.channels.Pop()
 			command := <-channel
-			var comm = communications.NewCommand(command, 0x11223344)
-			c.adminQueue.conn.Write(comm.AsByte())
+			buffer := communications.NewCommunication(command, 0x11223344).AsByte()
+			c.adminQueue.conn.Write(buffer)
 			var buff = make([]byte, 8)
 			readLen, connErr = c.adminQueue.conn.Read(buff)
 			if connErr != nil {
@@ -103,7 +102,7 @@ func (c *Connection) SendCommand() {
 }
 
 func (c *Connection) ReadClient() {
-	
+
 	for {
 		var connErr error
 		var readLen int
@@ -117,11 +116,11 @@ func (c *Connection) ReadClient() {
 		}
 		var header, _ = communications.NewHeaderFromBytes(buff)
 		var messageBuff = make([]byte, header.GetMessageLength())
-		readLen, connErr = c.clienConn.conn.Read(messageBuff)
+		readLen, connErr = c.clientConn.conn.Read(messageBuff)
 		if connErr != nil {
 			log.Fatal(connErr)
 		}
-		msg := message.fromJson(string(messageBuff))
+		msg := communications.FromJson(string(messageBuff))
 		if msg.Type == "scoreboard" {
 			c.clientConn.scoreboard <- msg.Content
 		} else {

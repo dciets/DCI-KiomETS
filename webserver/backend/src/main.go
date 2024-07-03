@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"io"
 	"log"
-	"net"
 	"net/http"
 	"os"
 )
@@ -18,6 +17,8 @@ const (
 	ADMIN_CHANNEL       = "10001"
 	SUPER_ADMIN_CHANNEL = "10002"
 )
+
+var currId = -1
 
 func main() {
 	// fs := http.FileServer(http.Dir(WEBAPP_PATH))
@@ -90,7 +91,6 @@ func main() {
 func getHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got /api request\n")
 	io.WriteString(w, "Hello, HTTP!\n")
-	send_command("status", ADMIN_CHANNEL)
 }
 
 func helloHandler(c *gin.Context) {
@@ -170,10 +170,11 @@ func stopGame(w http.ResponseWriter, r *http.Request) {
 }
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("got /api/status request\n")
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "status"
+	channel <- "status 1 abc"
 	result := <-channel
 	fmt.Fprintf(w, result)
 }
