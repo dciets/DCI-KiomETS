@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
-	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -55,6 +53,9 @@ func main() {
 	result := <-channel
 
 	currId, _ = strconv.Atoi(result[3:])
+
+	startChannelReading()
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api", getHello).Methods(http.MethodGet)
@@ -66,6 +67,11 @@ func main() {
 	router.HandleFunc("/api/status", getStatus).Methods(http.MethodGet)
 	router.HandleFunc("/api/start", startGame).Methods(http.MethodPost)
 	router.HandleFunc("/api/stop", stopGame).Methods(http.MethodPost)
+
+	// websocket
+	router.HandleFunc("/echo", echoWs)
+	router.HandleFunc("/ws/game", getGameInfo)
+	router.HandleFunc("/ws/scoreboard", getScoreboardInfo)
 
 	// redirects all unhandled paths to the frontend
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("/app/dist/frontend/")))
@@ -107,17 +113,6 @@ func RandStringRunes(n int) string {
 	return string(b)
 }
 
-func getHello(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got /api request\n")
-	io.WriteString(w, "Hello, HTTP!\n")
-}
-
-func helloHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Hello, HTTP!",
-	})
-}
-
 // Returns the port from the "PORT" environment variable, or returns ":8080" by default.
 func getPort() string {
 	port, exists := os.LookupEnv("PORT")
@@ -127,79 +122,18 @@ func getPort() string {
 	return port
 }
 
-func getAgents(w http.ResponseWriter, r *http.Request) {
+func startChannelReading() {
 	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "all-players " + strconv.Itoa(currId) + "-admin_command"
-	result := <-channel
-	fmt.Fprintf(w, result)
-}
-
-func createAgent(w http.ResponseWriter, r *http.Request) {
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "new-player " + strconv.Itoa(currId) + "-" + RandStringRunes(10)
-	result := <-channel
-	fmt.Fprintf(w, result)
-}
-
-func scoreboard(w http.ResponseWriter, r *http.Request) {
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "get-scoreboard"
-	result := <-channel
-	fmt.Fprintf(w, result)
-}
-
-func getParameters(w http.ResponseWriter, r *http.Request) {
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "get-parameters " + strconv.Itoa(currId) + "-admin_command"
-	result := <-channel
-	fmt.Fprintf(w, result)
-}
-func setParameters(w http.ResponseWriter, r *http.Request) {
-	// read the request body for the parameters
-	var data, err = io.ReadAll(r.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("got data: %s\n", string(data))
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "set-parameters " + strconv.Itoa(currId) + "-admin_command " + string(data)
-	result := <-channel
-	fmt.Fprintf(w, result)
-}
-
-func startGame(w http.ResponseWriter, r *http.Request) {
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "start " + strconv.Itoa(currId) + "-admin_command"
-	result := <-channel
-	fmt.Fprintf(w, result)
-}
-func stopGame(w http.ResponseWriter, r *http.Request) {
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "stop " + strconv.Itoa(currId) + "-admin_command"
-	result := <-channel
-	fmt.Fprintf(w, result)
-}
-
-func getStatus(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got /api/status request\n")
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "status " + strconv.Itoa(currId) + "-admin_command"
-	result := <-channel
-	fmt.Fprintf(w, result)
+	go func() {
+		for {
+			gameData := <-conn.clientConn.game
+			gameBroadcast.setData(gameData)
+		}
+	}()
+	go func() {
+		for {
+			scoreData := <-conn.clientConn.scoreboard
+			scoreBroadcast.setData(scoreData)
+		}
+	}()
 }
