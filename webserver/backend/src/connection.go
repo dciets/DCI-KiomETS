@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"sync"
@@ -55,11 +56,11 @@ func GetConnection() *Connection {
 		if conn == nil {
 			conn = &Connection{}
 			var err error
-			conn.adminQueue.conn, err = net.Dial("tcp", "localhost:10000")
+			conn.clientConn.conn, err = net.Dial("tcp", "localhost:10000")
 			if err != nil {
 				log.Fatal(err)
 			}
-			conn.clientConn.conn, err = net.Dial("tcp", "localhost:10001")
+			conn.adminQueue.conn, err = net.Dial("tcp", "localhost:10001")
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -81,6 +82,7 @@ func (c *Connection) SendCommand() {
 			channel := c.adminQueue.channels.Pop()
 			command := <-channel
 			buffer := communications.NewCommunication(command, 0x11223344).AsByte()
+			fmt.Printf("sending command : %s", command)
 			c.adminQueue.conn.Write(buffer)
 			var buff = make([]byte, 8)
 			readLen, connErr = c.adminQueue.conn.Read(buff)
@@ -96,6 +98,7 @@ func (c *Connection) SendCommand() {
 			if connErr != nil {
 				log.Fatal(connErr)
 			}
+			fmt.Printf(", got result : `%s`\n", string(messageBuff))
 			channel <- string(messageBuff)
 		}
 	}

@@ -6,8 +6,10 @@ import (
 	"github.com/gorilla/mux"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 const WEBAPP_PATH = "/app/dist/frontend"
@@ -46,14 +48,21 @@ func main() {
 	// GORILLA MUX
 	//
 
+	var conn = GetConnection()
+	channel := make(chan string)
+	conn.adminQueue.channels.Push(channel)
+	channel <- "id-assign"
+	result := <-channel
+
+	currId, _ = strconv.Atoi(result[3:])
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api", getHello).Methods(http.MethodGet)
-	router.HandleFunc("/api/bot", getBots).Methods(http.MethodGet)
-	router.HandleFunc("/api/bot", createBot).Methods(http.MethodPost)
+	router.HandleFunc("/api/agent", getAgents).Methods(http.MethodGet)
+	router.HandleFunc("/api/agent", createAgent).Methods(http.MethodPost)
 	router.HandleFunc("/api/scoreboard", scoreboard).Methods(http.MethodGet)
-	router.HandleFunc("/api/game", getGame).Methods(http.MethodGet)
-	router.HandleFunc("/api/game", setGame).Methods(http.MethodPost)
+	router.HandleFunc("/api/game", getParameters).Methods(http.MethodGet)
+	router.HandleFunc("/api/game", setParameters).Methods(http.MethodPost)
 	router.HandleFunc("/api/status", getStatus).Methods(http.MethodGet)
 	router.HandleFunc("/api/start", startGame).Methods(http.MethodPost)
 	router.HandleFunc("/api/stop", stopGame).Methods(http.MethodPost)
@@ -88,6 +97,16 @@ func main() {
 	// log.Fatal(http.ListenAndServe(port, router))
 }
 
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
 func getHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got /api request\n")
 	io.WriteString(w, "Hello, HTTP!\n")
@@ -108,20 +127,20 @@ func getPort() string {
 	return port
 }
 
-func getBots(w http.ResponseWriter, r *http.Request) {
+func getAgents(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "get-players"
+	channel <- "all-players " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
 	fmt.Fprintf(w, result)
 }
 
-func createBot(w http.ResponseWriter, r *http.Request) {
+func createAgent(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "create-player"
+	channel <- "new-player " + strconv.Itoa(currId) + "-" + RandStringRunes(10)
 	result := <-channel
 	fmt.Fprintf(w, result)
 }
@@ -135,19 +154,25 @@ func scoreboard(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, result)
 }
 
-func getGame(w http.ResponseWriter, r *http.Request) {
+func getParameters(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "get-parameters"
+	channel <- "get-parameters " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
 	fmt.Fprintf(w, result)
 }
-func setGame(w http.ResponseWriter, r *http.Request) {
+func setParameters(w http.ResponseWriter, r *http.Request) {
+	// read the request body for the parameters
+	var data, err = io.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("got data: %s\n", string(data))
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "set-parameters"
+	channel <- "set-parameters " + strconv.Itoa(currId) + "-admin_command " + string(data)
 	result := <-channel
 	fmt.Fprintf(w, result)
 }
@@ -156,7 +181,7 @@ func startGame(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "start"
+	channel <- "start " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
 	fmt.Fprintf(w, result)
 }
@@ -164,7 +189,7 @@ func stopGame(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "stop"
+	channel <- "stop " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
 	fmt.Fprintf(w, result)
 }
@@ -174,7 +199,7 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "status 1 abc"
+	channel <- "status " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
 	fmt.Fprintf(w, result)
 }

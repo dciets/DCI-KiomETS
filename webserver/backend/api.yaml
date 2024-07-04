@@ -7,18 +7,18 @@ servers:
     - url: http://localhost:8080
       description: Local server
 tags:
-  - name: Bot
-    description: Bot operations
+  - name: Agent
+    description: Agent operations
   - name: Scoreboard
     description: Scoreboard operations
   - name: Game
     description: Game operations
 paths:
-  /api/bot:
+  /api/agent:
     get:
       tags:
-        - Bot
-      summary: Get all bots
+        - Agent
+      summary: Get all agents
       security: []
       responses:
         200:
@@ -26,11 +26,11 @@ paths:
 
     post:
       tags:
-        - Bot
-      summary: Create a new bot and return its uid
+        - Agent
+      summary: Create a new agent and return its uid
       security: []
       parameters:
-        - name: botName
+        - name: agentName
           in: query
           required: true
           schema:
