@@ -57,10 +57,12 @@ func (t *TcpListener) Run() error {
 	for !t.isTcpClosed {
 		var conn net.Conn
 		conn, tcpError = t.tcpListener.Accept()
-		log.Printf("Connection accepted on port %d\n", t.port)
 		if tcpError == nil {
+			log.Printf("Connection accepted on port %d\n", t.port)
 			t.connections = append(t.connections, conn)
 			go t.acceptRequest(conn)
+		} else {
+			log.Printf(tcpError.Error())
 		}
 	}
 
@@ -104,25 +106,20 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		var protocol []byte = make([]byte, 8)
 		var readByte int
 
-		t.mut.Lock()
 		readByte, connErr = conn.Read(protocol)
 
 		var opErr *net.OpError = &net.OpError{}
 
 		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) || errors.As(connErr, &opErr) {
-			t.mut.Unlock()
 			return
 		}
 		if errors.Is(connErr, os.ErrDeadlineExceeded) {
-			t.mut.Unlock()
 			continue
 		} else if connErr != nil {
-			t.mut.Unlock()
 			log.Fatal(connErr)
 		}
 
 		if readByte < 8 {
-			t.mut.Unlock()
 			continue
 		}
 
@@ -130,14 +127,12 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		header, _ = communications.NewHeaderFromBytes(protocol)
 
 		if header.GetHeaderMagic() != t.magic {
-			t.mut.Unlock()
 			continue
 		}
 
 		var messageBuff []byte = make([]byte, header.GetMessageLength())
 
 		readByte, connErr = conn.Read(messageBuff)
-		t.mut.Unlock()
 
 		if errors.Is(connErr, io.ErrClosedPipe) || errors.Is(connErr, io.EOF) || errors.As(connErr, &opErr) {
 			return
@@ -154,6 +149,7 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 		}
 
 		var message = string(messageBuff[:])
+		log.Printf("Received message: %s from %s\n", message, conn.RemoteAddr())
 		*t.receiver <- message
 	}
 }

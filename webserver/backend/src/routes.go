@@ -33,6 +33,10 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 
 var upgrader = websocket.Upgrader{}
 
+func init() {
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+}
+
 func echoWs(w http.ResponseWriter, r *http.Request) {
 	WSconn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
