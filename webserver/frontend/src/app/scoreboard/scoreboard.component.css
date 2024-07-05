@@ -1,9 +1,13 @@
-/*@import "src/styles.css";*/
+
+.scoreboard {
+  @apply w-1/2 min-w-[500px] mt-1 mx-auto
+}
+
+tr {
+  @apply h-10 first:w-[10%] first:text-center last:w-[15%] even:bg-gray-700
+}
 
 /*.scoreboard {*/
-/*  width: max(500px, 50%);*/
-/*  margin-inline: auto;*/
-/*  margin-top: 1em;*/
 
 /*  tr {*/
 /*    height: 2.5em;*/

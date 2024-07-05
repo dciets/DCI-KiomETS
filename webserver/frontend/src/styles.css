@@ -15,6 +15,14 @@ html, body, app-root {
   @apply h-full block
 }
 
+nav {
+  @apply h-[60px]
+}
+
+main {
+  @apply min-h-[calc(100%-60px)]
+}
+
 h1 {
   @apply text-4xl
 }
