@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Color variables
+ */
+/*$bg-light: #888;*/
+/*$primary: #007bff;*/
+
+/*
+ * Global styles
+ */
+html, body, app-root {
+  @apply h-full block
+}
+
+h1 {
+  @apply text-4xl
+}
+
+h2 {
+  @apply text-3xl
+}
+
+h3 {
+  @apply text-2xl
+}
+
+h4 {
+  @apply text-xl
+}
+
+body {
+  @apply bg-gray-800 text-slate-100
+}

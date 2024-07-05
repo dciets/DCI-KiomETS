@@ -1,0 +1,23 @@
+/*@import "src/styles.css";*/
+
+/*:host {*/
+/*  width: fit-content;*/
+
+/*  .button {*/
+/*    border: 2px solid $primary;*/
+/*    background: none;*/
+/*    // display: inline-block;*/
+/*    text-align: center;*/
+/*    padding: 0.5em 3em;*/
+/*    border-radius: 2em;*/
+/*    transition: background-color 0.2s;*/
+/*    cursor: pointer;*/
+
+/*    &:hover {*/
+/*      background-color: $primary;*/
+/*    }*/
+/*    &:active {*/
+/*      filter: brightness(0.9);*/
+/*    }*/
+/*  }*/
+/*}*/
