@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"sync"
 	"webserver/Model/communications"
 )
@@ -50,17 +51,20 @@ var lock = &sync.Mutex{}
 var conn *Connection
 
 func GetConnection() *Connection {
+	var gamePortStr string = os.Getenv("GAME_PORT")
+	var adminPortStr string = os.Getenv("ADMIN_PORT")
+	var gameServerHost string = os.Getenv("GAME_SERVER_HOST")
 	if conn == nil {
 		lock.Lock()
 		defer lock.Unlock()
 		if conn == nil {
 			conn = &Connection{}
 			var err error
-			conn.clientConn.conn, err = net.Dial("tcp", "localhost:10000")
+			conn.clientConn.conn, err = net.Dial("tcp", gameServerHost+":"+gamePortStr)
 			if err != nil {
 				log.Fatal(err)
 			}
-			conn.adminQueue.conn, err = net.Dial("tcp", "localhost:10001")
+			conn.adminQueue.conn, err = net.Dial("tcp", gameServerHost+":"+adminPortStr)
 			if err != nil {
 				log.Fatal(err)
 			}

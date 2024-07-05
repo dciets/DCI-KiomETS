@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"log"
 	"math/rand"
 	"net/http"
@@ -10,41 +11,19 @@ import (
 	"strconv"
 )
 
-const WEBAPP_PATH = "/app/dist/frontend"
-const GAME_SERVER_URL = "localhost"
-const (
-	USER_CHANNEL        = "10000"
-	ADMIN_CHANNEL       = "10001"
-	SUPER_ADMIN_CHANNEL = "10002"
-)
-
 var currId = -1
 
+func loadEnv() {
+	if os.Getenv("APP_ENV") == "" {
+		var err error = godotenv.Load()
+		if err != nil {
+			panic("Error loading .env file")
+		}
+	}
+}
+
 func main() {
-	// fs := http.FileServer(http.Dir(WEBAPP_PATH))
-
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	if r.URL.Path != "/" {
-	// 		fullPath := WEBAPP_PATH + strings.TrimPrefix(path.Clean(r.URL.Path), "/")
-	// 		_, err := os.Stat(fullPath)
-	// 		if err != nil {
-	// 			if !os.IsNotExist(err) {
-	// 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// 				return
-	// 			}
-	// 			r.URL.Path = "/"
-	// 		}
-	// 	}
-	// 	fs.ServeHTTP(w, r)
-	// })
-	// http.HandleFunc("/api", getHello)
-	// if err := http.ListenAndServe(getPort(), nil); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	//
-	// GORILLA MUX
-	//
+	loadEnv()
 
 	var conn = GetConnection()
 	channel := make(chan string)
@@ -80,27 +59,6 @@ func main() {
 	fmt.Printf("Starting server on port %s\n", port)
 
 	log.Fatal(http.ListenAndServe(port, router))
-
-	//
-	// GIN
-	//
-
-	// router := gin.Default()
-
-	// router.GET("/api", helloHandler)
-	// // redirects all unhandled paths to the frontend
-	// router.Static("/static", "/app/dist/frontend")
-	// router.NoRoute(func(c *gin.Context) {
-	// 	c.File("/app/dist/frontend/index.html")
-	// })
-
-	// port := getPort()
-	// fmt.Printf("Starting server on port %s\n", port)
-	// err := router.Run(port)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// log.Fatal(http.ListenAndServe(port, router))
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
