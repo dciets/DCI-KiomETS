@@ -31,7 +31,6 @@ export class GameComponent implements OnInit, AfterViewInit {
     context.fillStyle = backgroundColor;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    context.strokeStyle = neutralColor;
     context.lineWidth = 1;
     context.font = '16px arial';
 
@@ -43,10 +42,22 @@ export class GameComponent implements OnInit, AfterViewInit {
       const terrain2X = terrain2Positions[0] * this.distanceMultiplier + centerX;
       const terrain2Y = terrain2Positions[1] * this.distanceMultiplier + centerY;
 
+      context.strokeStyle = neutralColor;
       context.beginPath();
       context.moveTo(terrain1X, terrain1Y);
       context.lineTo(terrain2X, terrain2Y);
       context.stroke();
+
+      for (const soldier of pipe.soldiers) {
+        const length = soldier.length * 1.0 / pipe.length;
+        const x = (terrain2X - terrain1X) * length + terrain1X;
+        const y = (terrain2Y - terrain1Y) * length + terrain1Y;
+
+        context.strokeStyle = this.data.players[soldier.ownerIndex].color;
+        context.fillStyle = context.strokeStyle;
+        context.fillRect(x - 1, y - 1, 2, 2);
+        context.fillText(soldier.soldierCount, x + this.distanceMultiplier, y);
+      }
     }
 
     context.fillStyle = neutralColor;
