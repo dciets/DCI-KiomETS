@@ -4,7 +4,7 @@ from actions import Action, create_move_action
 from server import Game
 
 
-class Bot:
+class Agent:
     def __init__(self):
         pass
 

@@ -98,9 +98,11 @@ func (c *Connection) SendCommand() {
 			}
 			var header, _ = communications.NewHeaderFromBytes(buff)
 			var messageBuff = make([]byte, header.GetMessageLength())
-			readLen, connErr = c.adminQueue.conn.Read(messageBuff)
-			if connErr != nil {
-				log.Fatal(connErr)
+			if header.GetMessageLength() > 0 {
+				readLen, connErr = c.adminQueue.conn.Read(messageBuff)
+				if connErr != nil {
+					log.Fatal(connErr)
+				}
 			}
 			fmt.Printf(", got result : `%s`\n", string(messageBuff))
 			channel <- string(messageBuff)
@@ -109,7 +111,6 @@ func (c *Connection) SendCommand() {
 }
 
 func (c *Connection) ReadClient() {
-
 	for {
 		var connErr error
 		var readLen int

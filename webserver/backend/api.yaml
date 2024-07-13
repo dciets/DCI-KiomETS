@@ -9,8 +9,6 @@ servers:
 tags:
   - name: Agent
     description: Agent operations
-  - name: Scoreboard
-    description: Scoreboard operations
   - name: Game
     description: Game operations
 paths:
@@ -23,45 +21,35 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agent'
 
     post:
       tags:
         - Agent
       summary: Create a new agent and return its uid
       security: []
-      parameters:
-        - name: agentName
-          in: query
-          required: true
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Name:
+                  type: string
+                  example: "Agent 1"
       responses:
         201:
           description: Created
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  uid:
-                    type: string
-                    example: "123ABC"
-
-  /api/scoreboard:
-    get:
-      tags:
-        - Scoreboard
-      summary: Get scoreboard
-      security: []
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Scoreboard'
+                $ref: '#/components/schemas/Agent'
 
   /api/game:
     get:
@@ -69,10 +57,6 @@ paths:
         - Game
       summary: Get parameters for the current game
       security: []
-      parameters:
-        - name: id
-          in: path
-          required: true
       responses:
         200:
           description: OK
@@ -95,15 +79,13 @@ paths:
         summary: Update parameters for the current game
         security:
             - auth: [admin]
-        parameters:
-            - name: id
-              in: path
-              required: true
-            - name: parameters
-              in: query
-              required: true
-              schema:
-                $ref: '#/components/schemas/Parameters'
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/Parameters'
+
         responses:
             200:
               description: OK
@@ -162,17 +144,23 @@ paths:
             description: Forbidden
         409:
             description: No Game started
+  /api/status:
+    get:
+      tags:
+        - Game
+      summary: Get game status
+      security: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Game started"
+
 components:
   schemas:
-    Scoreboard:
-        type: object
-        properties:
-          id:
-              type: integer
-          name:
-              type: string
-          score:
-              type: integer
     Parameters:
         type: object
         properties:
@@ -186,6 +174,15 @@ components:
               type: integer
           gameLength:
               type: integer
+    Agent:
+        type: object
+        properties:
+          UID:
+              type: string
+              example: "123ABC"
+          Name:
+              type: string
+              example: "Agent 1"
   securitySchemes:
     auth:
       type: http

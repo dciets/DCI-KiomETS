@@ -8,7 +8,7 @@ import server
 from actions import MoveAction, Action
 from connection import Message
 from tcp import TcpClient
-from update import Bot
+from update import Agent
 
 
 def connect(client: TcpClient):
@@ -23,7 +23,7 @@ async def tcp_client():
     try:
         client = TcpClient()
         await client.init(env.HOST, env.PORT)
-        bot = Bot()
+        bot = Agent()
         while True:
             json_data: Tuple[str, bool] = await client.read()
             json_string: str = json_data[0]

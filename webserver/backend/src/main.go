@@ -38,14 +38,17 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api", getHello).Methods(http.MethodGet)
+
 	router.HandleFunc("/api/agent", getAgents).Methods(http.MethodGet)
 	router.HandleFunc("/api/agent", createAgent).Methods(http.MethodPost)
-	router.HandleFunc("/api/scoreboard", scoreboard).Methods(http.MethodGet)
+
 	router.HandleFunc("/api/game", getParameters).Methods(http.MethodGet)
-	router.HandleFunc("/api/game", setParameters).Methods(http.MethodPost)
-	router.HandleFunc("/api/status", getStatus).Methods(http.MethodGet)
+	router.HandleFunc("/api/game", setParameters).Methods(http.MethodPut)
+
 	router.HandleFunc("/api/start", startGame).Methods(http.MethodPost)
 	router.HandleFunc("/api/stop", stopGame).Methods(http.MethodPost)
+
+	router.HandleFunc("/api/status", getStatus).Methods(http.MethodGet)
 
 	// websocket
 	router.HandleFunc("/echo", echoWs)
