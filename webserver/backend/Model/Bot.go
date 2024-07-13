@@ -4,15 +4,16 @@ import (
 	"fmt"
 )
 
-type Bot struct {
-	UID  string
-	Name string
+type Agent struct {
+	UID   string
+	Name  string
+	score int
 }
 
-func NewBot(UID string, Name string) *Bot {
-	return &Bot{UID: UID, Name: Name}
+func NewAgent(UID string, Name string) *Agent {
+	return &Agent{UID: UID, Name: Name}
 }
 
-func (b *Bot) String() string {
-	return fmt.Sprintf("Bot name : %s, UID : %s", b.Name, b.UID)
+func (b *Agent) String() string {
+	return fmt.Sprintf("Agent name : %s, UID : %s", b.Name, b.UID)
 }

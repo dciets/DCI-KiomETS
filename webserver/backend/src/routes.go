@@ -1,12 +1,16 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"webserver/Model"
 )
 
 type Observer interface {
@@ -63,27 +67,75 @@ func getAgents(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "all-players " + strconv.Itoa(currId) + "-admin_command"
+	channel <- "all-player " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
-	fmt.Fprintf(w, result)
+	//var encoded = strings.Split(result, " ")[1]
+	var encoded = strings.Split(result, " ")[1]
+	var decoded, err = base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	//create agents from decoded and maping id to UID
+	type MidleAgent struct {
+		UID  string `json:"id"`
+		Name string `json:"name"`
+	}
+	var midleAgent []MidleAgent
+	var err2 = json.Unmarshal(decoded, &midleAgent)
+	if err2 != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	var agents = make([]Model.Agent, len(midleAgent))
+	for i := range agents {
+		agents[i].UID = midleAgent[i].UID
+		agents[i].Name = midleAgent[i].Name
+	}
+	// encode in json and send
+	var toSend, err3 = json.Marshal(agents)
+	if err3 != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	fmt.Fprintf(w, "%s", toSend)
 }
 
 func createAgent(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "new-player " + strconv.Itoa(currId) + "-" + RandStringRunes(10)
+	// read the boduy
+	var agent Model.Agent
+	// Decode the incoming JSON request body and check for errors
+	err := json.NewDecoder(r.Body).Decode(&agent)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// Now you can access agent.Name
+	agentName := agent.Name
+	log.Printf("Received agent name: %s\n", agentName)
+	// get the name of the agent and encode it in b64
+	var encodedName = base64.StdEncoding.EncodeToString([]byte(agent.Name))
+	channel <- "new-player " + strconv.Itoa(currId) + "-" + RandStringRunes(10) + " " + encodedName
 	result := <-channel
-	fmt.Fprintf(w, result)
-}
-
-func scoreboard(w http.ResponseWriter, r *http.Request) {
-	var conn = GetConnection()
-	channel := make(chan string)
-	conn.adminQueue.channels.Push(channel)
-	channel <- "get-scoreboard"
-	result := <-channel
-	fmt.Fprintf(w, result)
+	var data = strings.Split(result, " ")
+	if len(data) < 2 {
+		http.Error(w, "Agent name already exists", http.StatusBadRequest)
+		return
+	}
+	// return the UID of the agent
+	agent.UID = data[1]
+	// decode the UID in b64
+	var decodedUID, err2 = base64.StdEncoding.DecodeString(agent.UID)
+	if err2 != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	agent.UID = string(decodedUID)
+	// encode in json and send
+	toSend, err3 := json.Marshal(agent)
+	if err3 != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	fmt.Fprintf(w, "%s", toSend)
 }
 
 func getParameters(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +144,13 @@ func getParameters(w http.ResponseWriter, r *http.Request) {
 	conn.adminQueue.channels.Push(channel)
 	channel <- "get-parameters " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
-	fmt.Fprintf(w, result)
+	// decode the parameters
+	var encoded = strings.Split(result, " ")[1]
+	var decoded, err = base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	fmt.Fprintf(w, "%s", decoded)
 }
 func setParameters(w http.ResponseWriter, r *http.Request) {
 	// read the request body for the parameters
@@ -100,13 +158,14 @@ func setParameters(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("got data: %s\n", string(data))
+	// encode the parameters in b64
+	var encoded = base64.StdEncoding.EncodeToString(data)
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	channel <- "set-parameters " + strconv.Itoa(currId) + "-admin_command " + string(data)
-	result := <-channel
-	fmt.Fprintf(w, result)
+	channel <- "set-parameters " + strconv.Itoa(currId) + "-admin_command " + encoded
+	_ = <-channel
+	fmt.Fprintf(w, "%s", data)
 }
 
 func startGame(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +174,17 @@ func startGame(w http.ResponseWriter, r *http.Request) {
 	conn.adminQueue.channels.Push(channel)
 	channel <- "start " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
-	fmt.Fprintf(w, result)
+	// get int answer and convert to int
+	var data = strings.Split(result, " ")
+	var returnVal, err = strconv.Atoi(data[1])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if returnVal != 1 {
+		http.Error(w, "Game already started", http.StatusConflict)
+		return
+	}
+	fmt.Fprintf(w, "Game started")
 }
 func stopGame(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
@@ -123,7 +192,17 @@ func stopGame(w http.ResponseWriter, r *http.Request) {
 	conn.adminQueue.channels.Push(channel)
 	channel <- "stop " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
-	fmt.Fprintf(w, result)
+	// get int answer and convert to int
+	var data = strings.Split(result, " ")
+	var returnVal, err = strconv.Atoi(data[1])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if returnVal != 1 {
+		http.Error(w, "Game isn't started", http.StatusConflict)
+		return
+	}
+	fmt.Fprintf(w, "Game will not restart")
 }
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
@@ -133,7 +212,17 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 	conn.adminQueue.channels.Push(channel)
 	channel <- "status " + strconv.Itoa(currId) + "-admin_command"
 	result := <-channel
-	fmt.Fprintf(w, result)
+	// get int answer and convert to int
+	var data = strings.Split(result, " ")
+	var returnVal, err = strconv.Atoi(data[1])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if returnVal != 1 {
+		fmt.Fprintf(w, "Game is currently running")
+	} else {
+		fmt.Fprintf(w, "Game is not running")
+	}
 }
 
 func getGameInfo(w http.ResponseWriter, r *http.Request) {
