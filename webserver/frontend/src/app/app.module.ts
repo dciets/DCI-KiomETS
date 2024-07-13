@@ -8,6 +8,7 @@ import { ScoreboardComponent } from './scoreboard/scoreboard.component';
 import { ButtonComponent } from './shared/components/button/button.component';
 import { SignupComponent } from './signup/signup.component';
 import { GameComponent } from './game/game.component';
+import {CommonModule} from "@angular/common";
 
 @NgModule({
   declarations: [
@@ -18,7 +19,7 @@ import { GameComponent } from './game/game.component';
     SignupComponent,
     GameComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule],
+  imports: [BrowserModule, AppRoutingModule, CommonModule],
   providers: [],
   bootstrap: [AppComponent],
 })

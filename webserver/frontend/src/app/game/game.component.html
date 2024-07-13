@@ -1,23 +1,42 @@
 <main class="flex flex-row">
-  <canvas class="h-5/6 w-5/6 bg-slate-100">
+  <canvas
+    width="1000"
+    height="1000"
+    class="h-5/6 w-5/6 bg-slate-100"
+    #canvas
+    (mousemove)="drag($event)"
+    (mouseleave)="stopDrag()"
+    (mouseup)="stopDrag()"
+    (mousedown)="startDrag()"
+  >
 
   </canvas>
-  <table class="h-5/6 w-1/6">
-    <thead>
+  <div class="w-1/6 h-5/6 flex flex-col">
+    <div>
+      <button class="w-1/2 bg-gray-700" (click)="scroll(2)">
+        Zoom-in
+      </button>
+      <button class="w-1/2 bg-gray-700" (click)="scroll(-2)">
+        Zoom-out
+      </button>
+    </div>
+    <table class="h-full w-full" *ngIf="data !== undefined && data.players.length !== 0">
+      <thead class="h-fit">
       <tr>
         <th>Bot</th>
         <th>Territories</th>
       </tr>
-    </thead>
-    <tbody class="overflow-auto">
-      <tr>
-        <td>
-          bob
+      </thead>
+      <tbody class="h-full overflow-auto">
+      <tr *ngFor="let player of data.players" class="h-8">
+        <td class="h-8">
+          {{ player.name }}
         </td>
-        <td>
-          5
+        <td class="h-8">
+          {{player.possessedTerrainsCount}}
         </td>
       </tr>
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>
 </main>

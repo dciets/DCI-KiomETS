@@ -6,13 +6,13 @@ class Player:
     __name: str
     __color: str
     __number_of_kill: int
-    __possessed_terrain: List[str]
+    __possessed_terrain_count: int
 
     def __init__(self, json_string):
         self.__name = json_string['name']
         self.__color = json_string['color']
         self.__number_of_kill = json_string['numberOfKill']
-        self.__possessed_terrain = json_string['possessedTerrains']
+        self.__possessed_terrain = json_string['possessedTerrainsCount']
         pass
 
     def name(self) -> str:
@@ -24,8 +24,8 @@ class Player:
     def number_of_kill(self) -> int:
         return self.__number_of_kill
 
-    def possessed_terrain(self) -> List[str]:
-        return self.__possessed_terrain
+    def possessed_terrain_count(self) -> int:
+        return self.__possessed_terrain_count
 
 
 class Terrain:

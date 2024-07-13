@@ -19,7 +19,7 @@ func RandomColor() Color {
 }
 
 func (c Color) String() string {
-	return fmt.Sprintf("#%02d%02d%02d", c.r, c.g, c.b)
+	return fmt.Sprintf("#%02x%02x%02x", c.r, c.g, c.b)
 }
 
 type Player struct {
@@ -34,7 +34,7 @@ func NewPlayer(name string, color Color) *Player {
 }
 
 func (p *Player) Serialize() serialisation.PlayerSerialisation {
-	return *serialisation.NewPlayerSerialisation(p.name, p.color.String(), int(p.numberOfKill), p.possessedTerrains)
+	return *serialisation.NewPlayerSerialisation(p.name, p.color.String(), int(p.numberOfKill), len(p.possessedTerrains))
 }
 
 func (p *Player) AddTerrain(terrainId string) {

@@ -130,6 +130,10 @@ func (t *TcpListener) acceptRequest(conn net.Conn) {
 			continue
 		}
 
+		if header.GetMessageLength() == 0 {
+			continue
+		}
+
 		var messageBuff []byte = make([]byte, header.GetMessageLength())
 
 		readByte, connErr = conn.Read(messageBuff)

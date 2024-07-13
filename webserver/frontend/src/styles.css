@@ -20,7 +20,7 @@ nav {
 }
 
 main {
-  @apply min-h-[calc(100%-60px)]
+  @apply h-[calc(100%-60px)]
 }
 
 h1 {

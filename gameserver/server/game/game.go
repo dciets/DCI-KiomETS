@@ -3,7 +3,6 @@ package game
 import (
 	"encoding/json"
 	"github.com/google/uuid"
-	"math"
 	"math/rand"
 	"server/game/serialisation"
 	"time"
@@ -61,10 +60,7 @@ func addNeighbor(t1 *Terrain, t2 *Terrain, terrainNeighbors map[string][]Neighbo
 }
 
 func generateNodesAndPipes(mapSize uint32) (map[string]*Terrain, []*Terrain, []*Pipe, map[string][]Neighbor) {
-	var realSize uint32 = 1
-	for i := uint32(0); i <= mapSize; i++ {
-		realSize += i * 6
-	}
+	var realSize uint32 = 1 + mapSize*(mapSize+1)*6/2
 	var terrains map[string]*Terrain = make(map[string]*Terrain)
 	var terrainsArray []*Terrain = make([]*Terrain, realSize)
 	var pipes []*Pipe = make([]*Pipe, 0)
@@ -86,15 +82,9 @@ func generateNodesAndPipes(mapSize uint32) (map[string]*Terrain, []*Terrain, []*
 			terrains[terrainsArray[0].GetId()] = terrainsArray[0]
 			terrainsArray[0].SetPosition([2]float32{0, 0})
 		} else {
-			var minV uint32 = uint32(math.Pow(6, float64(r-1))) + 1
-			if r == 1 {
-				minV = 1
-			}
+			var minV uint32 = 1 + (r-1)*((r-1)+1)*6/2
 
-			var rAdded uint32 = 0
-			for r2 := uint32(0); r2 < mapSize; r2++ {
-				rAdded += mapSize - r2
-			}
+			var rAdded uint32 = -r * (r - 2*mapSize - 1) / 2
 
 			for i := uint32(0); i < 6; i++ {
 				var baseX float32 = arr[i][0] * float32(rAdded)
@@ -122,26 +112,41 @@ func generateNodesAndPipes(mapSize uint32) (map[string]*Terrain, []*Terrain, []*
 	}
 
 	for r := uint32(1); r < mapSize; r++ {
-		var minV uint32 = uint32(math.Pow(6, float64(r-1))) + 1
-		if r == 1 {
-			minV = 1
-		}
-		var maxV uint32 = minV + r*6 - 1
+		var minV uint32 = 1 + (r-1)*((r-1)+1)*6/2
+		var maxV uint32 = minV + r*6
 
-		for i := minV; i <= maxV; i++ {
-			var indexM1 uint32 = (((i - minV) - 1) % ((r + 1) * 6)) + maxV + 1
-			var index uint32 = ((i - minV) % ((r + 1) * 6)) + maxV + 1
-			var indexP1 uint32 = (((i - minV) - 1) % ((r + 1) * 6)) + maxV + 1
+		for side := uint32(0); side < 6; side++ {
+			var sideIndex uint32 = minV + side*r
+			var multiplier int32 = int32((r + 1) * 6)
+			var mapping int32 = int32(sideIndex-minV)*int32(r+1)/int32(r) + multiplier
+			var indexM1 uint32 = uint32((mapping-1)%multiplier) + maxV
+			var index uint32 = uint32((mapping)%multiplier) + maxV
+			var indexP1 uint32 = uint32((mapping+1)%multiplier) + maxV
 
-			var p1 *Pipe = NewPipe(terrainsArray[i], terrainsArray[indexM1], uint8(mapSize-r))
-			var p2 *Pipe = NewPipe(terrainsArray[i], terrainsArray[index], uint8(mapSize-r))
-			var p3 *Pipe = NewPipe(terrainsArray[i], terrainsArray[indexP1], uint8(mapSize-r))
+			var p1 *Pipe = NewPipe(terrainsArray[sideIndex], terrainsArray[indexM1], uint8(mapSize-r))
+			var p2 *Pipe = NewPipe(terrainsArray[sideIndex], terrainsArray[index], uint8(mapSize-r))
+			var p3 *Pipe = NewPipe(terrainsArray[sideIndex], terrainsArray[indexP1], uint8(mapSize-r))
 			pipes = append(pipes, p1)
 			pipes = append(pipes, p2)
 			pipes = append(pipes, p3)
-			addNeighbor(terrainsArray[indexM1], terrainsArray[i], terrainNeighbors, p1)
-			addNeighbor(terrainsArray[index], terrainsArray[i], terrainNeighbors, p2)
-			addNeighbor(terrainsArray[indexP1], terrainsArray[i], terrainNeighbors, p3)
+			addNeighbor(terrainsArray[indexM1], terrainsArray[sideIndex], terrainNeighbors, p1)
+			addNeighbor(terrainsArray[index], terrainsArray[sideIndex], terrainNeighbors, p2)
+			addNeighbor(terrainsArray[indexP1], terrainsArray[sideIndex], terrainNeighbors, p3)
+
+			for i := uint32(1); i < r; i++ {
+				var subsideIndex = sideIndex + i
+
+				var subMapping = index - maxV
+				var i1 = uint32(int32(subMapping+(i-1)+2-1)%multiplier) + maxV
+				var i2 = uint32(int32(subMapping+(i-1)+2)%multiplier) + maxV
+				var p4 = NewPipe(terrainsArray[subsideIndex], terrainsArray[i1], uint8(mapSize-r))
+				var p5 = NewPipe(terrainsArray[subsideIndex], terrainsArray[i2], uint8(mapSize-r))
+
+				pipes = append(pipes, p4)
+				pipes = append(pipes, p5)
+				addNeighbor(terrainsArray[i1], terrainsArray[subsideIndex], terrainNeighbors, p4)
+				addNeighbor(terrainsArray[i2], terrainsArray[subsideIndex], terrainNeighbors, p5)
+			}
 		}
 	}
 
