@@ -56,7 +56,10 @@ export class GameComponent implements OnInit, AfterViewInit {
         context.strokeStyle = this.data.players[soldier.ownerIndex].color;
         context.fillStyle = context.strokeStyle;
         context.fillRect(x - 1, y - 1, 2, 2);
-        context.fillText(soldier.soldierCount, x + this.distanceMultiplier, y);
+
+        if (this.distanceMultiplier > 12) {
+          context.fillText(soldier.soldierCount, x + this.distanceMultiplier, y);
+        }
       }
     }
 

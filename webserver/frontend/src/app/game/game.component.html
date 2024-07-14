@@ -20,19 +20,19 @@
         Zoom-out
       </button>
     </div>
-    <table class="h-full w-full" *ngIf="data !== undefined && data.players.length !== 0">
+    <table class="max-h-full w-full mt-2" *ngIf="data !== undefined && data.players.length !== 0">
       <thead class="h-fit">
       <tr>
         <th>Agent</th>
         <th>Territories</th>
       </tr>
       </thead>
-      <tbody class="h-full overflow-auto">
+      <tbody class="max-h-full overflow-auto">
       <tr *ngFor="let player of data.players" class="h-8">
-        <td class="h-8">
+        <td class="h-8 text-center">
           {{ player.name }}
         </td>
-        <td class="h-8">
+        <td class="h-8 text-center">
           {{player.possessedTerrainsCount}}
         </td>
       </tr>
