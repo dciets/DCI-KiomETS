@@ -43,7 +43,7 @@ func (t *TcpListener) Run() error {
 	}
 	var tcpListener net.Listener
 	var tcpError error
-	tcpListener, tcpError = net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", t.port))
+	tcpListener, tcpError = net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", t.port))
 	if tcpError != nil {
 		return tcpError
 	}

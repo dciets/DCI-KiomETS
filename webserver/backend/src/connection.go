@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -86,7 +85,7 @@ func (c *Connection) SendCommand() {
 			channel := c.adminQueue.channels.Pop()
 			command := <-channel
 			buffer := communications.NewCommunication(command, 0x11223344).AsByte()
-			fmt.Printf("sending command : %s", command)
+			log.Printf("sending command : %s", command)
 			c.adminQueue.conn.Write(buffer)
 			var buff = make([]byte, 8)
 			readLen, connErr = c.adminQueue.conn.Read(buff)
@@ -104,7 +103,7 @@ func (c *Connection) SendCommand() {
 					log.Fatal(connErr)
 				}
 			}
-			fmt.Printf(", got result : `%s`\n", string(messageBuff))
+			log.Printf("got result : `%s`", string(messageBuff))
 			channel <- string(messageBuff)
 		}
 	}
