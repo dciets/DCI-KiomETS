@@ -2,7 +2,7 @@ package game
 
 import "server/game/serialisation"
 
-const TickToChangeBuilding uint32 = 20
+var TickToChangeBuilding uint32 = 20
 
 type ConstructionTerrainState struct {
 	T                *Terrain

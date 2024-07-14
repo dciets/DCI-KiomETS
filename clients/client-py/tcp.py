@@ -44,7 +44,6 @@ class TcpClient:
             return "", False
 
     def write(self, content: str) -> bool:
-        print(content)
         if not self.__initialized:
             return False
         try:

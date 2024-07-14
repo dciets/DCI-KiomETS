@@ -39,6 +39,8 @@ func (runtime *GameRuntime) tick() {
 func (runtime *GameRuntime) startNewGame() {
 	runtime.currentGame = game.NewGame(runtime.mapSize, runtime.soldierCreationSpeed, runtime.soldierMovementSpeed, runtime.terrainChangeSpeed)
 
+	game.TickToCreate = uint8(runtime.soldierCreationSpeed)
+	game.TickToChangeBuilding = runtime.terrainChangeSpeed
 	var timePerTick uint32 = runtime.timePerTick
 
 	var ticker *time.Ticker = time.NewTicker(time.Duration(timePerTick) * time.Millisecond)

@@ -61,7 +61,9 @@ func battleNGroup(g1 *SoldierGroup, g2s []*SoldierGroup, g1Function fightFunctio
 	}
 	var combinedForceCopy = combinedForce
 
-	fight(&g1.count, &combinedForceCopy, g1Function, g2Function)
+	if g1 != nil {
+		fight(&g1.count, &combinedForceCopy, g1Function, g2Function)
+	}
 
 	if combinedForceCopy == 0 {
 		return g1

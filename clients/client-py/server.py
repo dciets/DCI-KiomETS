@@ -32,11 +32,13 @@ class Terrain:
     __terrain_type: int
     __owner_index: int
     __number_of_soldier: int
+    __terrain_id: str
 
     def __init__(self, json_string):
         self.__terrain_type = json_string['terrainType']
         self.__owner_index = json_string['ownerIndex']
         self.__number_of_soldier = json_string['numberOfSoldier']
+        self.__terrain_id = json_string['terrainId']
 
     def type(self) -> int:
         return self.__terrain_type
@@ -46,6 +48,9 @@ class Terrain:
 
     def number_of_soldier(self) -> int:
         return self.__number_of_soldier
+
+    def id(self) -> str:
+        return self.__terrain_id
 
 
 class SoldierGroup:
@@ -115,6 +120,15 @@ class Game:
 
         for pipe in json_string['pipes']:
             self.__pipes.append(Pipe(pipe))
+
+    def players(self) -> List[Player]:
+        return self.__players
+
+    def terrains(self) -> List[Terrain]:
+        return self.__terrains
+
+    def pipes(self) -> List[Pipe]:
+        return self.__pipes
 
 
 def convert_data(content: str) -> Game:

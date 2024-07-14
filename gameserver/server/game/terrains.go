@@ -58,7 +58,9 @@ func (t *Terrain) PostTick() {
 		var lastGroupStanding *SoldierGroup = battleNGroup(t.soldiers, t.incomingGroups, g1Function, g2Function)
 		t.soldiers = lastGroupStanding
 		if lastGroupStanding.player != t.owner {
-			t.owner.RemoveTerrain(t.id)
+			if t.owner != nil {
+				t.owner.RemoveTerrain(t.id)
+			}
 			t.owner = lastGroupStanding.player
 			lastGroupStanding.player.AddTerrain(t.id)
 		}
@@ -98,5 +100,5 @@ func (t *Terrain) Serialize(playerNameIndexMap map[string]int) serialisation.Ter
 		numberOfSoldier = uint(t.soldiers.count)
 	}
 
-	return *serialisation.NewTerrainSerialisation(t.state.getTerrainType(), index, numberOfSoldier, t.position)
+	return *serialisation.NewTerrainSerialisation(t.state.getTerrainType(), index, numberOfSoldier, t.position, t.id)
 }

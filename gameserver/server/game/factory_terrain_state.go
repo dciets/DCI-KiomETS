@@ -2,7 +2,7 @@ package game
 
 import "server/game/serialisation"
 
-const TickToCreate uint8 = 2
+var TickToCreate uint8 = 2
 
 type FactoryTerrainState struct {
 	T           *Terrain
@@ -13,6 +13,7 @@ func (f *FactoryTerrainState) tick() {
 	f.currentTick++
 	if f.currentTick == TickToCreate {
 		f.T.soldiers.count++
+		f.currentTick = 0
 	}
 }
 

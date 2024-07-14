@@ -27,7 +27,6 @@ async def tcp_client():
         while True:
             json_data: Tuple[str, bool] = await client.read()
             json_string: str = json_data[0]
-            print("Receiving message " + json_string)
             msg = Message(json.loads(json_string))
             if msg.type() == "action":
                 game = server.convert_data(msg.content())
