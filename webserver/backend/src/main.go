@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"log"
@@ -24,6 +25,9 @@ func loadEnv() {
 
 func main() {
 	loadEnv()
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With ", "Content-Type", "Authorization"})
+	originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	var conn = GetConnection()
 	channel := make(chan string)
@@ -61,7 +65,7 @@ func main() {
 	port := getPort()
 	fmt.Printf("Starting server on port %s\n", port)
 
-	log.Fatal(http.ListenAndServe(port, router))
+	log.Fatal(http.ListenAndServe(port, handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

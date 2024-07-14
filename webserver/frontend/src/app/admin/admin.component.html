@@ -1,0 +1,63 @@
+<div class="admin-page">
+  <div class="left-column">
+    <ul id="parameters">
+      <li>
+        <div class="sec-title">
+          <h3>Game parameters :</h3>
+          <img alt="refresh icon" id="param-refresh" class="refresh-button" src="assets/img/refresh.svg" (click)="GetParameters($event)">
+        </div>
+      </li>
+      <li class="vgap"></li>
+      <li class="input-wrapper">
+        <label for="mapSize">Map size :</label>
+        <input id="mapSize" type="number" placeholder="map size" [(ngModel)]="parameters.mapSize" >
+      </li>
+      <li class="input-wrapper">
+        <label for="soldierSpeed">Soldier speed :</label>
+        <input id="soldierSpeed" type="number" placeholder="soldier speed" [(ngModel)]="parameters.soldierSpeed" >
+      </li>
+      <li class="input-wrapper">
+        <label for="soldierCreationSpeed">Soldier creation speed :</label>
+        <input id="soldierCreationSpeed" type="number" placeholder="soldier creation speed" [(ngModel)]="parameters.soldierCreationSpeed" >
+      </li>
+      <li class="input-wrapper">
+        <label for="terrainChangeSpeed">Terrain change speed :</label>
+        <input id="terrainChangeSpeed" type="number" placeholder="terrain change speed" [(ngModel)]="parameters.terrainChangeSpeed" >
+      </li>
+      <li class="input-wrapper">
+        <label for="gameLength">Game length :</label>
+        <input id="gameLength" type="number" placeholder="game length" [(ngModel)]="parameters.gameLength" >
+      </li>
+      <li>
+        <button (click)="SetParameters($event)" >Set parameters</button>
+      </li>
+    </ul>
+    <div>
+      <button (click)="startGame()">Start Game</button>
+      <button (click)="endGame()">End Game</button>
+      <button (click)="status()">Status</button>
+      <div id="backend-response">
+        <h3>Backend response :</h3>
+        <textarea id="be-response" [(ngModel)]="backendResponse" disabled></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="right-column">
+    <div class="sec-title">
+      <h2>Player List</h2>
+      <img alt="refresh icon" id="player-refresh" class="refresh-button" src="assets/img/refresh.svg" (click)="GetPlayers($event)">
+    </div>
+    <table id="player-table">
+      <thead>
+        <tr>
+          <th>Player Name</th>
+          <th>Player UID</th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let player of players">
+          <td>{{ player.Name }}</td>
+          <td>{{ player.UID }}</td>
+        </tr>
+    </table>
+  </div>
+</div>

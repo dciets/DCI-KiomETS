@@ -9,6 +9,7 @@ import { ButtonComponent } from './shared/components/button/button.component';
 import { SignupComponent } from './signup/signup.component';
 import { GameComponent } from './game/game.component';
 import {CommonModule} from "@angular/common";
+import {ReactiveFormsModule,FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -19,7 +20,7 @@ import {CommonModule} from "@angular/common";
     SignupComponent,
     GameComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, CommonModule],
+  imports: [BrowserModule, AppRoutingModule, CommonModule, ReactiveFormsModule, FormsModule],
   providers: [],
   bootstrap: [AppComponent],
 })

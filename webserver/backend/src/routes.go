@@ -95,7 +95,8 @@ func getAgents(w http.ResponseWriter, r *http.Request) {
 	if err3 != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	fmt.Fprintf(w, "%s", toSend)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(toSend)
 }
 
 func createAgent(w http.ResponseWriter, r *http.Request) {
@@ -135,7 +136,8 @@ func createAgent(w http.ResponseWriter, r *http.Request) {
 	if err3 != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	fmt.Fprintf(w, "%s", toSend)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(toSend)
 }
 
 func getParameters(w http.ResponseWriter, r *http.Request) {
@@ -150,7 +152,8 @@ func getParameters(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	fmt.Fprintf(w, "%s", decoded)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(decoded)
 }
 func setParameters(w http.ResponseWriter, r *http.Request) {
 	// read the request body for the parameters
@@ -165,7 +168,8 @@ func setParameters(w http.ResponseWriter, r *http.Request) {
 	conn.adminQueue.channels.Push(channel)
 	channel <- "set-parameters " + strconv.Itoa(currId) + "-admin_command " + encoded
 	_ = <-channel
-	fmt.Fprintf(w, "%s", data)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 func startGame(w http.ResponseWriter, r *http.Request) {
@@ -184,7 +188,8 @@ func startGame(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Game already started", http.StatusConflict)
 		return
 	}
-	fmt.Fprintf(w, "Game started")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("Game started"))
 }
 func stopGame(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
@@ -202,7 +207,8 @@ func stopGame(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Game isn't started", http.StatusConflict)
 		return
 	}
-	fmt.Fprintf(w, "Game will not restart")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("Game will stop after the current round ends"))
 }
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
@@ -218,10 +224,11 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	w.Header().Set("Content-Type", "application/json")
 	if returnVal != 1 {
-		fmt.Fprintf(w, "Game is currently running")
+		w.Write([]byte("Game is not running"))
 	} else {
-		fmt.Fprintf(w, "Game is not running")
+		w.Write([]byte("Game is currently running"))
 	}
 }
 

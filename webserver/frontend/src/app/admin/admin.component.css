@@ -1,0 +1,86 @@
+.admin-page{
+  display: grid;
+  grid-template-columns: 30% 30%;
+  justify-content: space-around;
+}
+
+.left-column{
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap : 30px;
+}
+
+button{
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.vgap{
+  height: 20px;
+}
+
+.admin-page input{
+  background-color: #666;
+  padding: 7px 20px;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.admin-page label{
+  margin: 5px;
+}
+
+
+.input-wrapper{
+  display: grid;
+  grid-template-columns: 66% 33%;
+  grid-template-rows: 2em;
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-page button{
+  border-radius: 5px;
+  transition: box-shadow 0.2s cubic-bezier(0.7, 0.05, 0.13, 0.7)
+}
+
+.admin-page button:hover {
+  opacity: 0.8;
+}
+
+.refresh-button{
+  filter: invert(100%) sepia(0%) saturate(7492%) hue-rotate(305deg) brightness(101%) contrast(101%);
+  height: 20px;
+}
+
+.sec-title{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#be-response{
+  width: 100%;
+}
+
+.right-column{
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap : 30px;
+}
+
+
+#player-table th, #player-table td{
+  border: 3px solid #777;
+  text-align: start;
+  padding: 2px 5px;
+}
+
+

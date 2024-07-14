@@ -1,3 +1,7 @@
 .btn-wrapped-a {
   @apply h-full w-full flex items-center justify-center px-1 font-medium transition-colors duration-200 hover:bg-gray-900 active:brightness-90
 }
+
+nav{
+  padding: 1% 0 0 2%;
+}
