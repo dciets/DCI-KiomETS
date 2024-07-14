@@ -8,9 +8,9 @@ COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
 ## run backend webserver
-COPY backend/**/*.go ./
+COPY backend ./
 ENV PORT=:8080
-RUN CGO_ENABLED=0 GOOS=linux go build -o ./binary
+RUN go build -o ./binary ./src
 
 
 # node (angular) build
@@ -32,4 +32,4 @@ FROM scratch
 COPY --from=go-build /backend/binary /app/webserver-binary
 COPY --from=node-build /frontend/dist /app/dist
 
-CMD ["/app/webserver-binary"]
+ENTRYPOINT /app/webserver-binary
