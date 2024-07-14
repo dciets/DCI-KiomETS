@@ -1,0 +1,27 @@
+services:
+  gameserver:
+    container_name: GameServer
+    restart: always
+    build:
+      context: ./gameserver/server
+      dockerfile: Dockerfile
+    ports:
+      - '10000:10000'
+      - '10001:10001'
+      - '10002:10002'
+#  webserver:
+#    container_name: WebServer
+#    restart: always
+#    ports:
+#      - '8080:80'
+#    build:
+#      context: ./webserver
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - gameserver
+#    environment:
+#      APP_ENV: true
+#      GAME_PORT: 10000
+#      ADMIN_PORT: 10001
+#      GAME_SERVER_HOST: host.docker.internal
+#      ORIGIN_ALLOWED: localhost:4200

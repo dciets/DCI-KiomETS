@@ -1,18 +1,3 @@
-# go build
-FROM golang:1.22 as go-build
-
-WORKDIR /backend
-
-## install dependencies
-COPY backend/go.mod backend/go.sum ./
-RUN go mod download
-
-## run backend webserver
-COPY backend ./
-ENV PORT=:8080
-RUN go build -o ./binary ./src
-
-
 # node (angular) build
 FROM node:21.7 as node-build
 
@@ -26,10 +11,19 @@ RUN npm install
 COPY frontend ./
 RUN npm run build
 
-# final stage
-FROM scratch
+# go build
+FROM golang:1.22 as go-build
 
-COPY --from=go-build /backend/binary /app/webserver-binary
+WORKDIR /backend
+
+## install dependencies
+COPY backend/go.mod backend/go.sum ./
+RUN go mod download
+
+## run backend webserver
+COPY backend ./
+RUN go build -o /app/webserver-binary ./src
+
 COPY --from=node-build /frontend/dist /app/dist
 
 ENTRYPOINT /app/webserver-binary
