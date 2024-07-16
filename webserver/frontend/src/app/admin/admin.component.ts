@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
-
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-admin',
@@ -32,7 +32,7 @@ export class AdminComponent implements OnInit {
       this.flashElement(event.target as HTMLElement)
     }
     // fetch parameters from server
-    fetch('http://localhost:8080/api/game').then((response) => {
+    fetch(environment.serverAddr).then((response) => {
       response.json().then((data) => {
         console.log(data);
         this.parameters = data;
@@ -45,7 +45,7 @@ export class AdminComponent implements OnInit {
       this.flashElement(event.target as HTMLElement)
     }
     // fetch players from server
-    fetch('http://localhost:8080/api/agent').then((response) => {
+    fetch(environment.serverAddr).then((response) => {
       response.json().then((data) => {
         console.log(data);
         this.players = data;
@@ -56,7 +56,7 @@ export class AdminComponent implements OnInit {
   SetParameters(event: Event){
     this.flashElement(event.target as HTMLElement)
     // send parameters to server
-    fetch('http://localhost:8080/api/game', {
+    fetch(environment.serverAddr, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export class AdminComponent implements OnInit {
   }
   startGame(){
     // start game
-    fetch('http://localhost:8080/api/start', {
+    fetch(environment.serverAddr, {
       method: 'POST',
     }).then((response) => {
       response.text().then((data) => {
@@ -89,7 +89,7 @@ export class AdminComponent implements OnInit {
   }
   endGame(){
     // end game
-    fetch('http://localhost:8080/api/stop', {
+    fetch(environment.serverAddr, {
       method: 'POST',
     }).then((response) => {
       response.text().then((data) => {
@@ -100,7 +100,7 @@ export class AdminComponent implements OnInit {
   }
   status(){
     // get game status
-    fetch('http://localhost:8080/api/status').then((response) => {
+    fetch(environment.serverAddr).then((response) => {
       response.text().then((data) => {
         console.log(data);
         this.backendResponse = `${response.status} ${data}`

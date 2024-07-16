@@ -9,13 +9,13 @@ services:
       - '10000:10000'
       - '10001:10001'
       - '10002:10002'
-  webserver:
-    container_name: WebServer
+  backend:
+    container_name: Backend
     restart: always
     ports:
-      - '80:8080'
+      - '8080:8080'
     build:
-      context: ./webserver
+      context: ./webserver/backend
       dockerfile: Dockerfile
     depends_on:
       - gameserver
@@ -25,3 +25,13 @@ services:
       ADMIN_PORT: 10001
       GAME_SERVER_HOST: host.docker.internal
       ORIGIN_ALLOWED: localhost:4200
+  frontend:
+    container_name: Frontend
+    restart: always
+    ports:
+      - '80:80'
+    build:
+      context: ./webserver/frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend

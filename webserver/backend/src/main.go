@@ -59,9 +59,6 @@ func main() {
 	router.HandleFunc("/ws/game", getGameInfo)
 	router.HandleFunc("/ws/scoreboard", getScoreboardInfo)
 
-	// redirects all unhandled paths to the frontend
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("/app/dist/frontend/")))
-
 	port := getPort()
 	fmt.Printf("Starting server on port %s\n", port)
 
