@@ -1,1 +1,28 @@
-<p>signup works!</p>
+<div class="signup-page">
+
+  <div class="signup-form">
+
+    <h1>Inscription</h1>
+    <p>
+      Pour vous inscrire, veuillez entrer le nom de votre bot.
+    </p>
+    <div class="input-wrapper">
+      <label for="bot-name">
+        Nom du bot :
+      </label>
+      <input id="bot-name" type="text" placeholder="Nom du bot" [(ngModel)]="botName" />
+    </div>
+    <button [disabled]="!botName" (click)="signup()">Enregistrer le bot</button>
+    <div id="UID-wrapper" *ngIf="uid">
+      <p>Votre bot a été enregistré avec succès sous le nom <code>{{botName}}</code></p>
+      <p>Vous pouvez maintenant jouer en utilisant l'UID suivant : </p>
+      <p id="uid">UID : <code>{{uid}}</code><img id="copy-icon" alt="copy icon" ngSrc="/assets/img/copy.svg" height="20" width="20" (click)="copyUID()"></p>
+      <p *ngIf="copied">{{copied}}</p>
+    </div>
+    <div id="error-wrapper" *ngIf="error">
+      <p>Une erreur est survenue, voici les détails : </p>
+      <p>{{error}}</p>
+    </div>
+  </div>
+
+</div>

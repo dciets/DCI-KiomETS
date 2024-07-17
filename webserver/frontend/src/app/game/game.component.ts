@@ -52,7 +52,6 @@ export class GameComponent implements OnInit, AfterViewInit {
         const length = soldier.length * 1.0 / pipe.length;
         const x = (terrain2X - terrain1X) * length + terrain1X;
         const y = (terrain2Y - terrain1Y) * length + terrain1Y;
-
         context.strokeStyle = this.data.players[soldier.ownerIndex].color;
         context.fillStyle = context.strokeStyle;
         context.fillRect(x - 1, y - 1, 2, 2);

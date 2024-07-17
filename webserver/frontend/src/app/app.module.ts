@@ -8,7 +8,7 @@ import { ScoreboardComponent } from './scoreboard/scoreboard.component';
 import { ButtonComponent } from './shared/components/button/button.component';
 import { SignupComponent } from './signup/signup.component';
 import { GameComponent } from './game/game.component';
-import {CommonModule} from "@angular/common";
+import {CommonModule, NgOptimizedImage} from "@angular/common";
 import {ReactiveFormsModule,FormsModule} from "@angular/forms";
 
 @NgModule({
@@ -20,7 +20,7 @@ import {ReactiveFormsModule,FormsModule} from "@angular/forms";
     SignupComponent,
     GameComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, CommonModule, ReactiveFormsModule, FormsModule],
+    imports: [BrowserModule, AppRoutingModule, CommonModule, ReactiveFormsModule, FormsModule, NgOptimizedImage],
   providers: [],
   bootstrap: [AppComponent],
 })

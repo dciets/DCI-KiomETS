@@ -1,0 +1,49 @@
+.signup-page {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  margin-top: 50px;
+}
+.signup-page input{
+  background-color: #666;
+  padding: 7px 20px;
+  border-radius: 5px;
+  width: 100%;
+}
+button{
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+button:disabled{
+  background-color: #87af89;
+  cursor: default;
+}
+
+.signup-form{
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  gap: 30px;
+}
+
+code{
+  background: rgba(91, 91, 91, 0.67);
+  padding: 3px;
+}
+
+
+#uid{
+  display: flex;
+  gap: 2px;
+}
+
+#copy-icon{
+  cursor: pointer;
+}

@@ -110,6 +110,8 @@ func (c *Connection) SendCommand() {
 }
 
 func (c *Connection) ReadClient() {
+	c.clientConn.game <- "{'message': 'Game hasn't started yet'}"
+	c.clientConn.scoreboard <- "{'message': 'Game hasn't started yet'}"
 	for {
 		var connErr error
 		var readLen int

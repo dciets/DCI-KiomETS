@@ -12,11 +12,11 @@ import { environment } from 'src/environments/environment';
 })
 export class AdminComponent implements OnInit {
   parameters: any = {
-    mapSize: 0,
-    soldierSpeed: 0,
-    soldierCreationSpeed: 3,
-    terrainChangeSpeed: 0,
-    gameLength: 0,
+    mapSize: -1,
+    soldierSpeed: -1,
+    soldierCreationSpeed: -1,
+    terrainChangeSpeed: -1,
+    gameLength: -1,
   }
 
   backendResponse: string = "";
@@ -32,7 +32,7 @@ export class AdminComponent implements OnInit {
       this.flashElement(event.target as HTMLElement)
     }
     // fetch parameters from server
-    fetch(environment.serverAddr).then((response) => {
+    fetch("http://"+environment.serverAddr+"/api/game").then((response) => {
       response.json().then((data) => {
         console.log(data);
         this.parameters = data;
@@ -45,7 +45,7 @@ export class AdminComponent implements OnInit {
       this.flashElement(event.target as HTMLElement)
     }
     // fetch players from server
-    fetch(environment.serverAddr).then((response) => {
+    fetch("http://"+environment.serverAddr+"/api/agent").then((response) => {
       response.json().then((data) => {
         console.log(data);
         this.players = data;
@@ -56,7 +56,7 @@ export class AdminComponent implements OnInit {
   SetParameters(event: Event){
     this.flashElement(event.target as HTMLElement)
     // send parameters to server
-    fetch(environment.serverAddr, {
+    fetch("http://"+environment.serverAddr+"/api/game", {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export class AdminComponent implements OnInit {
   }
   startGame(){
     // start game
-    fetch(environment.serverAddr, {
+    fetch("http://"+environment.serverAddr+"/api/start", {
       method: 'POST',
     }).then((response) => {
       response.text().then((data) => {
@@ -89,7 +89,7 @@ export class AdminComponent implements OnInit {
   }
   endGame(){
     // end game
-    fetch(environment.serverAddr, {
+    fetch("http://"+environment.serverAddr+"/api/stop", {
       method: 'POST',
     }).then((response) => {
       response.text().then((data) => {
@@ -100,7 +100,7 @@ export class AdminComponent implements OnInit {
   }
   status(){
     // get game status
-    fetch(environment.serverAddr).then((response) => {
+    fetch("http://"+environment.serverAddr+"/api/status").then((response) => {
       response.text().then((data) => {
         console.log(data);
         this.backendResponse = `${response.status} ${data}`

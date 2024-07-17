@@ -240,7 +240,6 @@ func getGameInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer WSconn.Close()
-
 	WSconn.WriteMessage(websocket.TextMessage, []byte(gameBroadcast.data))
 	gameBroadcast.register(&WebSocket{WSconn: WSconn, id: "game"})
 	defer gameBroadcast.deregister(&WebSocket{WSconn: WSconn, id: "game"})
