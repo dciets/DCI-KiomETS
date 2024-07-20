@@ -1,6 +1,9 @@
 package communications
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"log"
+)
 
 type Message struct {
 	Type    string `json:"type"`
@@ -13,7 +16,10 @@ func NewMessage(Type string, content string) *Message {
 
 func FromJson(jsonStr string) *Message {
 	var msg Message
-	json.Unmarshal([]byte(jsonStr), &msg)
+	var err error = json.Unmarshal([]byte(jsonStr), &msg)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &msg
 }
 

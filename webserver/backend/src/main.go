@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 var currId = -1
@@ -26,7 +27,7 @@ func loadEnv() {
 func main() {
 	loadEnv()
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With ", "Content-Type", "Authorization"})
-	originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	originsOk := handlers.AllowedOrigins(strings.Split(os.Getenv("ORIGIN_ALLOWED"), ","))
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	var conn = GetConnection()

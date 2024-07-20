@@ -27,6 +27,10 @@ func (c *Communication) AsByte() []byte {
 	return bytes
 }
 
+func (c *Communication) GetMessageLength() uint32 {
+	return c.header.length
+}
+
 func NewHeaderFromValue(magic uint32, length uint32) *Header {
 	return &Header{
 		magic:  magic,

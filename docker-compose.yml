@@ -24,7 +24,7 @@ services:
       GAME_PORT: 10000
       ADMIN_PORT: 10001
       GAME_SERVER_HOST: host.docker.internal
-      ORIGIN_ALLOWED: localhost:4200
+      ORIGIN_ALLOWED: localhost:4200,http://localhost
   frontend:
     container_name: Frontend
     restart: always

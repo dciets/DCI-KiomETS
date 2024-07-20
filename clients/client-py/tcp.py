@@ -33,7 +33,12 @@ class TcpClient:
             if magic != env.MAGIC:
                 return "", False
 
-            read: bytes = await self.__reader.read(length)
+            number_of_reed_bytes: length = 0
+            read: bytes = bytes([])
+            while number_of_reed_bytes < length:
+                current_read: bytes = await self.__reader.read(length)
+                number_of_reed_bytes += len(current_read)
+                read += current_read
             return str(read, 'utf-8'), True
         except ConnectionError as err:
             self.__initialized = False

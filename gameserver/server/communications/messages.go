@@ -1,6 +1,9 @@
 package communications
 
-import "encoding/json"
+import (
+	"encoding/base64"
+	"encoding/json"
+)
 
 type Message struct {
 	Type    string `json:"type"`
@@ -8,7 +11,7 @@ type Message struct {
 }
 
 func NewMessage(Type string, content string) *Message {
-	return &Message{Type: Type, Content: content}
+	return &Message{Type: Type, Content: base64.StdEncoding.EncodeToString([]byte(content))}
 }
 
 func (m *Message) String() string {

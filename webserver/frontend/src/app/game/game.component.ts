@@ -129,8 +129,9 @@ export class GameComponent implements OnInit, AfterViewInit {
 
     this.socket = new WebSocket('ws://'+environment.serverAddr+'/ws/game');
     this.socket.onmessage = (ev: MessageEvent) => {
-      if (ev.data.trim() !== '') {
-        this.data = JSON.parse(ev.data);
+      const decoded = atob(ev.data.trim());
+      if (decoded.trim() !== '') {
+        this.data = JSON.parse(decoded);
         this.draw();
       }
     }

@@ -21,6 +21,7 @@ async def admin():
                                                                   "\"soldierCreationSpeed\":1,"
                                                                   "\"terrainChangeSpeed\":1,"
                                                                   "\"gameLength\":300}", "utf-8")).decode("utf-8"))
+        client2.write("set-time-per-tick 1000")
         await client2.read()
         input("Admin create done")
         client.write("start 0")

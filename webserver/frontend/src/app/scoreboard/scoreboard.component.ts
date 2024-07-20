@@ -20,9 +20,9 @@ export class ScoreboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.socket = new WebSocket('ws://'+environment.serverAddr+'/ws/scoreboard');
-    this.socket.onmessage = (ev: MessageEvent) => {
-      if (ev.data.trim() !== '') {
-        this.scores = (JSON.parse(ev.data) as any[])
+    this.socket.onmessage = (ev: MessageEvent) => {const decoded = atob(ev.data.trim());
+      if (decoded.trim() !== '') {
+        this.scores = (JSON.parse(decoded) as any[])
           .sort((a, b) => b.score - a.score).map((data, index) => ({...data, rank: index + 1}));
       }
     }

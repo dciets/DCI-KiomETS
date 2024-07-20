@@ -29,6 +29,7 @@ async def tcp_client():
             json_string: str = json_data[0]
             msg = Message(json.loads(json_string))
             if msg.type() == "action":
+                print(msg.content())
                 game = server.convert_data(msg.content())
                 actions = bot.update(game)
                 actions_json = json.dumps([ac.serialize() for ac in actions])

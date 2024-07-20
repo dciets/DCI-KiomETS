@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 	"webserver/Model/communications"
 )
 
@@ -86,7 +87,10 @@ func (c *Connection) SendCommand() {
 			command := <-channel
 			buffer := communications.NewCommunication(command, 0x11223344).AsByte()
 			log.Printf("sending command : %s", command)
-			c.adminQueue.conn.Write(buffer)
+			_, err := c.adminQueue.conn.Write(buffer)
+			if err != nil {
+				log.Fatal(err)
+			}
 			var buff = make([]byte, 8)
 			readLen, connErr = c.adminQueue.conn.Read(buff)
 			if connErr != nil {
@@ -105,13 +109,36 @@ func (c *Connection) SendCommand() {
 			}
 			log.Printf("got result : `%s`", string(messageBuff))
 			channel <- string(messageBuff)
+		} else {
+			time.Sleep(50 * time.Millisecond)
 		}
 	}
 }
 
+func fullRead(header *communications.Header, conn net.Conn) ([]byte, error) {
+	var length uint32 = header.GetMessageLength()
+	var reed uint32 = 0
+	var bytes []byte = make([]byte, length)
+
+	for reed < length {
+		var currentRead []byte = make([]byte, length-reed)
+		var reedLength int
+		var err error
+		reedLength, err = conn.Read(currentRead)
+		if err != nil {
+			return nil, err
+		}
+
+		copy(bytes[reed:reed+uint32(reedLength)], currentRead[0:reedLength])
+		reed += uint32(reedLength)
+	}
+
+	return bytes, nil
+}
+
 func (c *Connection) ReadClient() {
-	c.clientConn.game <- "{'message': 'Game hasn't started yet'}"
-	c.clientConn.scoreboard <- "{'message': 'Game hasn't started yet'}"
+	//c.clientConn.game <- "{'message': 'Game hasn't started yet'}"
+	//c.clientConn.scoreboard <- "{'message': 'Game hasn't started yet'}"
 	for {
 		var connErr error
 		var readLen int
@@ -124,11 +151,13 @@ func (c *Connection) ReadClient() {
 			log.Fatal("header should be of length 8")
 		}
 		var header, _ = communications.NewHeaderFromBytes(buff)
-		var messageBuff = make([]byte, header.GetMessageLength())
-		readLen, connErr = c.clientConn.conn.Read(messageBuff)
+
+		var messageBuff []byte
+		messageBuff, connErr = fullRead(header, c.clientConn.conn)
 		if connErr != nil {
 			log.Fatal(connErr)
 		}
+
 		msg := communications.FromJson(string(messageBuff))
 		if msg.Type == "scoreboard" {
 			c.clientConn.scoreboard <- msg.Content
