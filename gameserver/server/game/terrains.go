@@ -51,13 +51,13 @@ func (t *Terrain) Tick() {
 }
 
 func (t *Terrain) PostTick() {
-	if len(t.incomingGroups) > 0 {
+	if t != nil && len(t.incomingGroups) > 0 {
 		var g1Function fightFunction
 		var g2Function fightFunction
 		g1Function, g2Function = t.state.getFightingFunctions()
 		var lastGroupStanding *SoldierGroup = battleNGroup(t.soldiers, t.incomingGroups, g1Function, g2Function)
 		t.soldiers = lastGroupStanding
-		if lastGroupStanding.player != t.owner {
+		if lastGroupStanding != nil && lastGroupStanding.player != t.owner && lastGroupStanding.player != nil {
 			if t.owner != nil {
 				t.owner.RemoveTerrain(t.id)
 			}

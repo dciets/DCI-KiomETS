@@ -2,9 +2,11 @@ package app
 
 import (
 	"log"
+	"math/rand"
 	"server/communications"
 	"server/game"
 	"server/interfaces"
+	"sync"
 	"time"
 )
 
@@ -28,6 +30,7 @@ type GameRuntime struct {
 	soldierCreationSpeed uint32
 	terrainChangeSpeed   uint32
 	userRepository       *UserRepository
+	actionMutex          sync.Mutex
 }
 
 func (runtime *GameRuntime) tick() {
@@ -38,6 +41,8 @@ func (runtime *GameRuntime) tick() {
 
 func (runtime *GameRuntime) startNewGame() {
 	runtime.currentGame = game.NewGame(runtime.mapSize, runtime.soldierCreationSpeed, runtime.soldierMovementSpeed, runtime.terrainChangeSpeed)
+	rand.Seed(time.Now().Unix())
+	runtime.actionMutex.Unlock()
 
 	game.TickToCreate = uint8(runtime.soldierCreationSpeed)
 	game.TickToChangeBuilding = runtime.terrainChangeSpeed
@@ -66,6 +71,7 @@ func (runtime *GameRuntime) startNewGame() {
 
 	_ = runtime.gameListener.Write(communications.NewMessage("scoreboard", runtime.userRepository.SerialisePlayersScore()).String())
 
+	runtime.actionMutex.Lock()
 	runtime.currentGame = nil
 }
 
@@ -97,7 +103,9 @@ func (runtime *GameRuntime) Start() {
 
 	for runtime.ticking {
 		<-time.NewTimer(time.Duration(1) * time.Second).C
+		runtime.actionMutex.Lock()
 		runtime.startNewGame()
+		runtime.actionMutex.Unlock()
 	}
 
 	runtime.running = false

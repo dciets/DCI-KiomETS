@@ -5,7 +5,6 @@ import (
 	"github.com/google/uuid"
 	"math/rand"
 	"server/game/serialisation"
-	"time"
 )
 
 type Game struct {
@@ -249,7 +248,6 @@ func (g *Game) AddPlayer(name string) {
 	}
 
 	if len(unusedTerrain) > 0 {
-		rand.Seed(time.Now().Unix())
 		var player *Player = NewPlayer(name, RandomColor())
 		g.players[name] = player
 		var terrain *Terrain = g.terrains[unusedTerrain[rand.Intn(len(unusedTerrain))]]

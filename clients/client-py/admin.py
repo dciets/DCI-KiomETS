@@ -14,17 +14,17 @@ async def admin():
         client2.write('id-assign')
         r = await client2.read()
         print(r)
-        client.write("admin-create " +
-                     base64.b64encode(bytes("test", "utf-8")).decode("utf-8") + " " +
-                     base64.b64encode(bytes(env.ID, "utf-8")).decode("utf-8"))
-        client2.write("set-parameters 0 " + base64.b64encode(bytes("{\"mapSize\":10,\"soldierSpeed\":1,"
-                                                                  "\"soldierCreationSpeed\":1,"
-                                                                  "\"terrainChangeSpeed\":1,"
-                                                                  "\"gameLength\":300}", "utf-8")).decode("utf-8"))
-        client2.write("set-time-per-tick 1000")
-        await client2.read()
-        input("Admin create done")
-        client.write("start 0")
+        # client.write("admin-create " +
+        #              base64.b64encode(bytes("test", "utf-8")).decode("utf-8") + " " +
+        #              base64.b64encode(bytes(env.ID, "utf-8")).decode("utf-8"))
+        # client2.write("set-parameters 0 " + base64.b64encode(bytes("{\"mapSize\":5,\"soldierSpeed\":1,"
+        #                                                           "\"soldierCreationSpeed\":1,"
+        #                                                           "\"terrainChangeSpeed\":1,"
+        #                                                           "\"gameLength\"300}", "utf-8")).decode("utf-8"))
+        client2.write("set-time-per-tick 2000")
+        # await client2.read()
+        # input("Admin create done")
+        # client.write("start 0")
     except Exception as e:
         print(e)
 
