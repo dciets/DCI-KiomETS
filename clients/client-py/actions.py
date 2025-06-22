@@ -32,8 +32,8 @@ class BuildAction:
 @dataclass
 class Action:
     action_type: int
-    move: MoveAction or None
-    build: BuildAction or None
+    move: MoveAction | None
+    build: BuildAction | None
 
     def serialize(self) -> Dict[str, Any]:
         sr: Dict[str, Any] = {

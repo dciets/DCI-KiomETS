@@ -2,14 +2,14 @@ from typing import List
 
 from actions import Action, create_move_action
 from server import Game
-
+import env
 
 class Agent:
     def __init__(self):
         pass
 
     def update(self, game: Game) -> List[Action]:
-        player_name = 'test'
+        player_name = env.PLAYER_NAME
         terrains = game.terrains()
         players = game.players()
         pipes = game.pipes()

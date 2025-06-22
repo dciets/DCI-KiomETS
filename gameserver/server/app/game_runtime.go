@@ -124,21 +124,20 @@ func (runtime *GameRuntime) SetTimePerTick(timePerTick uint32) {
 }
 
 func (runtime *GameRuntime) HasPlayer(player *Player) bool {
-	if !runtime.running {
+	if runtime.currentGame == nil || !runtime.running {
 		return true
 	}
-
 	return runtime.currentGame.HasPlayer(player.Name())
 }
 
 func (runtime *GameRuntime) AddPlayer(player *Player) {
-	if runtime.running {
+	if runtime.running && runtime.currentGame != nil {
 		runtime.currentGame.AddPlayer(player.Name())
 	}
 }
 
 func (runtime *GameRuntime) Play(playerName string, actions []game.Action) {
-	if runtime.running {
+	if runtime.running && runtime.currentGame != nil {
 		runtime.currentGame.Play(playerName, actions)
 	}
 }

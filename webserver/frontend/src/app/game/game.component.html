@@ -28,12 +28,12 @@
       </tr>
       </thead>
       <tbody class="max-h-full overflow-auto">
-      <tr *ngFor="let player of data.players" class="h-8">
+      <tr *ngFor="let score of getScores()" class="h-8">
         <td class="h-8 text-center">
-          {{ player.name }}
+          {{ score.name }}
         </td>
         <td class="h-8 text-center">
-          {{player.possessedTerrainsCount}}
+          {{score.possessedTerrainsCount}}
         </td>
       </tr>
       </tbody>
