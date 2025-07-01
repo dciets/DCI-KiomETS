@@ -103,7 +103,7 @@ func createAgent(w http.ResponseWriter, r *http.Request) {
 	var conn = GetConnection()
 	channel := make(chan string)
 	conn.adminQueue.channels.Push(channel)
-	// read the boduy
+	// read the body
 	var agent Model.Agent
 	// Decode the incoming JSON request body and check for errors
 	err := json.NewDecoder(r.Body).Decode(&agent)

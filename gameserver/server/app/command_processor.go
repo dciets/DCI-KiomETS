@@ -230,7 +230,8 @@ func (c *CommandProcessor) Process(command string) {
 			} else {
 				log.Printf("Set parameters error: %s\n", string(decodedParametersBytes))
 			}
-			_ = c.adminListener.Write("")
+			var messageId string = split[1]
+			_ = c.adminListener.Write(messageId + " ")
 		}
 		c.mutex.Unlock()
 		break

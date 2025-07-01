@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 	"sync"
 	"time"
 	"webserver/Model/communications"
@@ -79,8 +80,6 @@ func GetConnection() *Connection {
 }
 
 func (c *Connection) SendCommand() {
-	var connErr error
-	var readLen int
 	for {
 		if len(c.adminQueue.channels.queue) != 0 {
 			channel := c.adminQueue.channels.Pop()
@@ -91,28 +90,54 @@ func (c *Connection) SendCommand() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			var buff = make([]byte, 8)
-			readLen, connErr = c.adminQueue.conn.Read(buff)
-			if connErr != nil {
-				log.Fatal(connErr)
+
+			var messageBuff string
+			var commandId string = ""
+			if command != "id-assign" {
+				commandId = strings.Split(command, " ")[1]
 			}
-			if readLen != 8 {
-				log.Fatal("header should be of length 8")
-			}
-			var header, _ = communications.NewHeaderFromBytes(buff)
-			var messageBuff = make([]byte, header.GetMessageLength())
-			if header.GetMessageLength() > 0 {
-				readLen, connErr = c.adminQueue.conn.Read(messageBuff)
-				if connErr != nil {
-					log.Fatal(connErr)
+
+			for {
+				messageBuff = c.readMessage()
+				var id string = c.idOf(messageBuff)
+				if command == "id-assign" && id == "01" || id == commandId {
+					break
 				}
 			}
-			log.Printf("got result : `%s`", string(messageBuff))
-			channel <- string(messageBuff)
+			log.Printf("got result : `%s`", messageBuff)
+			channel <- messageBuff
 		} else {
 			time.Sleep(50 * time.Millisecond)
 		}
 	}
+}
+
+func (c *Connection) readMessage() string {
+	var connErr error
+	var readLen int
+	var buff = make([]byte, 8)
+	readLen, connErr = c.adminQueue.conn.Read(buff)
+	if connErr != nil {
+		log.Fatal(connErr)
+	}
+	if readLen != 8 {
+		log.Fatal("header should be of length 8")
+	}
+	var header, _ = communications.NewHeaderFromBytes(buff)
+	var messageBuff = make([]byte, header.GetMessageLength())
+	if header.GetMessageLength() > 0 {
+		readLen, connErr = c.adminQueue.conn.Read(messageBuff)
+		if connErr != nil {
+			log.Fatal(connErr)
+		}
+	}
+
+	return string(messageBuff)
+}
+
+func (c *Connection) idOf(message string) string {
+	var split []string = strings.Split(message, " ")
+	return split[0]
 }
 
 func fullRead(header *communications.Header, conn net.Conn) ([]byte, error) {
