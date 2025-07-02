@@ -1,6 +1,7 @@
-const actions = require('./actions');
+import { createMoveAction } from './actions.js';
+import { env } from './env.js';
 
-module.exports = class Agent {
+export default class Agent {
     /**
      *
      * @param data {
@@ -12,26 +13,27 @@ module.exports = class Agent {
      * }
      */
     update(data) {
-        const playerName = 'test';
+        const playerName = env.playerName;
 
         const terrains = data.terrains;
         const players = data.players;
         const pipes = data.pipes;
 
         const player = players.find(p => p.name === playerName);
+        
         if (player) {
             const playerIndex = players.indexOf(player);
-            const playerTerrains = terrains.filter(t => t.name === playerIndex);
+            const playerTerrains = terrains.filter(t => t.ownerIndex === playerIndex);
 
             const playerTerrainsIndex = playerTerrains.map(t => terrains.indexOf(t));
 
             const orders = [];
             for (const pipe of pipes) {
                 if (playerTerrainsIndex.indexOf(pipe.first) !== -1 && playerTerrainsIndex.indexOf(pipe.second) === -1 && terrains[pipe.first].numberOfSoldier > 0) {
-                    orders.push(actions.createMoveAction(terrains[pipe.first].terrainId, terrains[pipe.second].terrainId, 1));
+                    orders.push(createMoveAction(terrains[pipe.first].terrainId, terrains[pipe.second].terrainId, 1));
                 }
                 if (playerTerrainsIndex.indexOf(pipe.second) !== -1 && playerTerrainsIndex.indexOf(pipe.first) === -1 && terrains[pipe.second].numberOfSoldier > 0) {
-                    orders.push(actions.createMoveAction(terrains[pipe.second].terrainId, terrains[pipe.first].terrainId, 1));
+                    orders.push(createMoveAction(terrains[pipe.second].terrainId, terrains[pipe.first].terrainId, 1));
                 }
             }
             return orders;

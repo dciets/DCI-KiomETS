@@ -10,10 +10,13 @@ class Agent:
 
     def update(self, game: Game) -> List[Action]:
         player_name = env.PLAYER_NAME
+        
         terrains = game.terrains()
         players = game.players()
         pipes = game.pipes()
+        
         player = [index for index in range(len(players)) if players[index].name() == player_name]
+        
         if len(player) == 1:
             player_index = player[0]
             player_terrains = [(index, terrains[index]) for index in range(len(terrains)) if terrains[index].owner_index() == player_index]

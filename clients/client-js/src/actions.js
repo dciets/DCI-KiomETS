@@ -105,7 +105,7 @@ function createDemolishAction(terrainId) {
     return action;
 }
 
-module.exports = {
+export {
     createMoveAction,
     createBuildBarricadeAction,
     createBuildFactoryAction,

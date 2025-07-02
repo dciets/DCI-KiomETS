@@ -33,7 +33,7 @@ class TcpClient:
             if magic != env.MAGIC:
                 return "", False
 
-            number_of_reed_bytes: length = 0
+            number_of_reed_bytes: int = 0
             read: bytes = bytes([])
             while number_of_reed_bytes < length:
                 current_read: bytes = await self.__reader.read(length)

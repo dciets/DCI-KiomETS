@@ -1,1 +1,0 @@
-ps aux | grep "./.venv/bin/python3 main" | grep -v "grep"

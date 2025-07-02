@@ -1,44 +1,63 @@
-const env = require('./env');
-const Net = require('node:net');
+import { env } from './env.js';
+import { Socket } from 'node:net';
+import { ArgumentParser } from 'argparse';
+import Agent from './update.js';
 
-const client = new Net.Socket();
-const Agent = require('./update');
+const client = new Socket();
+
 
 const agent = new Agent();
 
 function action(data) {
-    let a = '';
     let byteArray = new Uint8Array(4);
-    byteArray[0] = env.MAGIC & 0xFF;
-    byteArray[1] = (env.MAGIC >> 8) & 0xFF;
-    byteArray[2] = (env.MAGIC >> 16) & 0xFF;
-    byteArray[3] = (env.MAGIC >> 24) & 0xFF;
+    byteArray[0] = env.magic & 0xFF;
+    byteArray[1] = (env.magic >> 8) & 0xFF;
+    byteArray[2] = (env.magic >> 16) & 0xFF;
+    byteArray[3] = (env.magic >> 24) & 0xFF;
+
+    let msg = ""
+
+    for (let i = 0; i < 4; i++) {
+        msg += String.fromCharCode(byteArray[i]);
+    }
+    let action = 'action ' + new Buffer(env.id).toString('base64') + ' ' + new Buffer(data).toString('base64');
 
     let length = new Uint8Array(4);
-    length[0] = data.length & 0xFF;
-    length[1] = (data.length >> 8) & 0xFF;
-    length[2] = (data.length >> 16) & 0xFF;
-    length[3] = (data.length >> 24) & 0xFF;
+    let actionLength = action.length
+    length[0] = actionLength & 0xFF;
+    length[1] = (actionLength >> 8) & 0xFF;
+    length[2] = (actionLength >> 16) & 0xFF;
+    length[3] = (actionLength >> 24) & 0xFF;
 
     for (let i = 0; i < 4; i++) {
-        a += String.fromCharCode(byteArray[i]);
+        msg += String.fromCharCode(length[i]);
     }
-
-    for (let i = 0; i < 4; i++) {
-        a += String.fromCharCode(length[i]);
-    }
-    a += 'action ' + new Buffer(env.ID).toString('base64') + ' ' + new Buffer(byteArray).toString('base64');
-    client.write(a);
+    client.write(msg + action);
 }
 
 /**
- * @param msg {string}
+ * @param msg {UInt8Array}
  */
 function onMessage(msg) {
     /**
      * @type {{type: string, content: string}}
      */
-    const obj = JSON.parse(msg);
+    const header = msg.slice(0, 8);
+    msg = msg.slice(8);
+
+    const magic = header[0] | (header[1] << 8) | (header[2] << 16) | (header[3] << 24);
+    if (magic !== env.magic) {
+        console.error('Invalid magic number:', magic);
+        return;
+    }
+    const length = header[4] | (header[5] << 8) | (header[6] << 16) | (header[7] << 24);
+    if (length !== msg.length) {
+        console.error('Invalid message length:', length, 'expected:', msg.length);
+        return;
+    }
+    const decoder = new TextDecoder('utf-8');
+    const str = decoder.decode(msg);
+    const obj = JSON.parse(str);
     if (obj.type === 'action') {
         /**
          * @type {
@@ -52,12 +71,24 @@ function onMessage(msg) {
         const update = JSON.parse(new Buffer(obj.content, 'base64').toString());
         const ret = agent.update(update);
         const str = JSON.stringify(ret.map(a => a.serialise()));
+        action(str);
     }
 }
 
-let message = '';
 
-client.connect({port: env.PORT, host: env.HOST}, () => {
+
+let parser = ArgumentParser({ description: "TCP Client for the game" })
+parser.add_argument("bot_id", { type: "str", help: "ID of the bot" })
+parser.add_argument("bot_name", { type: "str", help: "Name of the bot" })
+let parsed_args = parser.parse_args();
+
+env.id = parsed_args.bot_id
+env.playerName = parsed_args.bot_name
+
+
+let message = Uint8Array.from([]);
+
+client.connect({ port: env.port, host: env.host }, () => {
     console.log('Connected to the server...');
 });
 
@@ -66,10 +97,10 @@ client.on('end', () => {
 });
 
 client.on('data', (stream) => {
-    message += stream.toString();
+    message = new Uint8Array([...message, ...stream]);
 
-    if (message.indexOf('}') !== -1) {
-        onMessage(message.substring(8));
-        message = '';
+    if (message.indexOf(0x7d) !== -1) {
+        onMessage(message);
+        message = Uint8Array.from([]);
     }
 });
