@@ -1,7 +1,245 @@
-<div class="wrapper d-flex align-items-center justify-content-center">
-  <div class="btn-wrapper">
-    <ui-button (click)="onClick()" label="Instructions"></ui-button>
-    <ui-button (click)="onClick()" label="Règles"></ui-button>
-    <ui-button (click)="onClick()" label="Documentation"></ui-button>
+<div class="mx-auto w-1/2">
+  <div class="flex flex-col items-center mt-4 text-center">
+    <h1 class="w-fit">DCI KiomETS</h1>
+
+    <div class="mt-2">
+      <button class="mr-2" (click)="changeLanguage('fr')">Français</button>
+      <button (click)="changeLanguage('en')">English</button>
+    </div>
+
+    <h2 class="mt-8">Instructions</h2>
+
+    <div *ngIf="language == 'fr'">
+      <p class="mt-4">
+        Vous devez concevoir un agent autonome - sans interaction humaines durant l'exécution -
+        pour capturer le plus de territoire que possible. Le jeu est séparé en rondes. Au fil des rondes, votre agent accumule des points.
+      </p>
+      <p class="mt-4">
+        Pour rouler l'agent, veuillez l'enregistrer.
+      </p>
+      <ol class="list-decimal text-left mx-auto w-1/2">
+        <li>
+          Inscription
+        </li>
+        <li>
+          Entrez votre nom d'agent
+        </li>
+        <li>
+          Notez votre ID d'agent
+        </li>
+      </ol>
+      <p class="mt-4">
+        Ensuite, vous pouvez rouler l'agent comme ceci :
+      </p>
+      <p>Python : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">python main.py [votre ID de d'agent] "[nom de votre agent]"</code></p>
+      <p>JS : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">npm run serve [votre ID de d'agent] "[nom de votre agent]"</code></p>
+    </div>
+
+    <div *ngIf="language == 'en'">
+      <p class="mt-4">
+        You must create an autonomous agent - without human interaction during the execution - to capture the most territories.
+        The game is split in rounds. Each rounds, you agent cumulate points.
+      </p>
+      <p class="mt-4">
+        To run your agent, you must first register it.
+      </p>
+      <ol class="list-decimal text-left mx-auto w-1/2">
+        <li>
+          Inscription
+        </li>
+        <li>
+          Enter your agent's name
+        </li>
+        <li>
+          Save your agent's ID
+        </li>
+      </ol>
+      <p class="mt-4">
+        Then you can run it with this
+      </p>
+      <p>Python : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">python main.py [your agent's ID] "[your agent's name]"</code></p>
+      <p>JS : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">npm run serve [your agent's ID] "[your agent's name]"</code></p>
+    </div>
+
+    <div *ngIf="language == 'fr'">
+      <h2 class="mt-8">Régles du jeu</h2>
+    </div>
+
+    <div *ngIf="language == 'en'">
+      <h2 class="mt-8">Game's rules</h2>
+    </div>
+
+    <div *ngIf="language == 'fr'">
+      <h3 class="mt-4">Terrains</h3>
+      <p class="mt-4">
+        Les terrains sont essentiels, sans eux, votre agent meurt.
+        Chaque terrain peut avoir l'un des deux bâtiments suivants :
+      </p>
+      <ul class="list-disc text-left mx-auto w-1/2">
+        <li>
+          L'usine - permet d'automatiquement fabriquer des soldats
+        </li>
+        <li>
+          La barricade - permet de mieux defendre un terrain ayant une garnison (des soldats sur place)
+        </li>
+      </ul>
+      <p class="mt-4">
+        En plus du bénéfice multiplicatif aux soldats, les barrières requièrent aussi 5 soldats minimum à capturer lorsqu'elle possède une garnison (5 + garnison * multiplicateur).
+        La force d'une barrière se calcul comme suit : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">nb defenseur * 3 + 5</code>.
+        La force de tout autre terrain se calcul comme suit : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">nb defenseur * 2</code>.
+        Il faut au minimum un soldat de plus que la force du terrain pour le capturer.
+      </p>
+      <p class="mt-4">
+        Un terrain peut ne pas avoir de bâtiment. Il est soit vide, soit en construction.
+        Un terrain est en construction lorsqu'un bâtiment est en cours de construction ou de destruction.
+        À partir d'un terrain non vide, votre agent doit détruire le bâtiment courant avant de lancer la construction d'un autre bâtiment.
+      </p>
+      <p class="mt-4">
+        Pour changer le type de bâtiment d'un terrain, il faut envoyer l'une des deux actions suivantes :
+      </p>
+      <p>
+        <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_build_factory_action()/createBuildFactoryAction()</code> pour créer un/e usine.
+      </p>
+      <p>
+        <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_build_barricade_action()/createBuildBarricadeAction()</code> pour créer une barricade.
+      </p>
+      <p>
+        Pour démolir un bâtiment, il faut envoyer l'action suivante :
+      </p>
+      <p>
+        <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_demolish_action()/createDemolishAction()</code>.
+      </p>
+      <p>
+        Toutes ces actions nécessite l'ID d'un terrain en paramètre.
+      </p>
+    </div>
+
+    <div *ngIf="language == 'en'">
+      <h3 class="mt-4">Terrains</h3>
+      <p class="mt-4">
+        Terrains are essentials. Without them, your agent dies.
+        Each terrain can have one of two buildings :
+      </p>
+      <ul class="list-disc text-left mx-auto w-1/2">
+        <li>
+          The factory - automatically create soldiers
+        </li>
+        <li>
+          The barricade - offer better defensive value to a garrisoned terrain (a terrain with soldier in it)
+        </li>
+      </ul>
+      <p class="mt-4">
+        While giving a multiplicative bonus to soldier, barriers also requires 5 soldiers at a minimum to capture when garrisoned (5 + garrison * multiplier).
+        The power of a barrier is computed as such : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">nb defender * 3 + 5</code>.
+        The power of other terrains are computed as such : <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">nb defender * 2</code>.
+        You need a minimum of one soldier more than a terrain force to capture it.
+      </p>
+      <p class="mt-4">
+        A terrain can have no building on it. It is either empty or in construction.
+        A terrain is in construction when a building is being build or destroyed.
+        If a terrain is not empty, you must destroy the current building then launch the construction of another building.
+      </p>
+      <p class="mt-4">
+        To change the building type of a terrain, you need to send one of the two following action :
+      </p>
+      <p>
+        <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_build_factory_action()/createBuildFactoryAction()</code> to create a factory.
+      </p>
+      <p>
+        <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_build_barricade_action()/createBuildBarricadeAction()</code> to create a barricade.
+      </p>
+      <p>
+        To destroy a building, you need to send the following command :
+      </p>
+      <p>
+        <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_demolish_action()/createDemolishAction()</code>.
+      </p>
+      <p>
+        All these actions require a valid terrain ID in parameter.
+      </p>
+    </div>
+
+    <div *ngIf="language == 'fr'">
+      <h3 class="mt-4">Soldats</h3>
+      <p class="mt-4">
+        Les soldats servent à defendre et à attaquer.
+        Un soldat sur un terrain sert de garnison.
+        Chaque soldat en garnison possède la force de 2 soldats, sauf s'il se trouve sur une barrière.
+        Dans ce cas il possède la force de 3 soldats.
+      </p>
+      <p class="mt-4">
+        Les soldats peuvent être déplacé en envoyant une <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_move_action()/createMoveAction()</code>.
+        L'action prend en paramètre l'ID du terrain de départ, l'ID du terrain de destination ainsi que la quantité de soldat à envoyer.
+        Les terrains doivent être adjacents et le terrain source doit avoir la quantité requise de soldat pour être valide.
+      </p>
+      <p class="mt-4">
+        Si deux groupes de soldats se rencontre entre les terrains. Un combat à force égale - 1 soldat = 1 force pour les deux agents - se produira.
+        Si plusieurs groupes de soldats appartenant à plusieurs agents attaquent un terrain, tous les groupes combineront leur force pour battre le defenseur.
+        Ensuite, chaque agent combat, à force égale, combat l'ensemble des autres agents.
+        Si un groupe survit, il prend possession du terrain. Si aucun groupe ne survit, le defenseur garde le contrôle du terrain.
+      </p>
+    </div>
+
+    <div *ngIf="language == 'en'">
+      <h3 class="mt-4">Soldiers</h3>
+      <p class="mt-4">
+        The soldiers are there to defend and attack.
+        A soldier on a terrain is considered a garrison.
+        Each soldier in garrison have the power of 2 soldiers, except on barriers.
+        In this case, it possesses the power of 3 soldiers.
+      </p>
+      <p class="mt-4">
+        Soldiers can be moved with the <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">create_move_action()/createMoveAction()</code>.
+        The action takes as parameters the source terrain ID, the destination terrain ID and the quantity of soldiers to send.
+        Both terrains must be adjacent and the source terrain must have enough soldier for the action to be valid.
+      </p>
+      <p class="mt-4">
+        If two groups of soldiers meet in between terrais, an equal power battle - 1 soldier = 1 power for both agent - occurs.
+        If multiples groups of soldiers belonging to multiple agents attack a terrain, all groups will combine their power to beat the defender.
+        Then, each agent fights, at equal power, all the other agents.
+        If a group survives, it takes possession of the terrain. Otherwise, the defender keep the possession of the terrain.
+      </p>
+    </div>
+
+    <div *ngIf="language == 'fr'">
+      <h3 class="mt-4">Actions</h3>
+
+      <p class="mt-4">
+        Chaque terrain peut envoyer une seule action par update.
+        Pour envoyer une action au serveur de jeu, il faut retourner un array,
+        dans la méthode <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">update</code> de l'agent,
+        contenant le retour de fonction d'une des fonctions d'action.
+      </p>
+    </div>
+
+    <div *ngIf="language == 'en'">
+      <h3 class="mt-4">Actions</h3>
+
+      <p class="mt-4">
+        Each terrain can receive only one action per update.
+        To send an action to the game server, you need to return an array,
+        in the <code class="inline-block bg-gray-900 px-2 py-1 rounded text-sm font-mono">update</code> method of the agent,
+        containing the return value of an action function.
+      </p>
+    </div>
+
+    <div *ngIf="language == 'fr'">
+      <h3 class="mt-4">Calcul des points</h3>
+
+      <p class="mt-4">
+        À la fin de chaque ronde, chaque agent reçoit son nombre de territoire en points plus cinq fois son nombre de kill.
+        Un kill est effectué lorsqu'un agent capture le dernier territoire d'un autre agent.
+      </p>
+    </div>
+
+    <div *ngIf="language == 'en'">
+      <h3 class="mt-4">Points counting</h3>
+
+      <p class="mt-4">
+        At the end of a round, each agent receive the number of territories in points plus five time his amount of kill.
+        A kill is done when an agent capture the last terrain of another agent.
+      </p>
+    </div>
+    <div class="h-40"></div>
   </div>
 </div>
