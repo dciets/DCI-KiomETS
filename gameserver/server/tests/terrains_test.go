@@ -125,7 +125,7 @@ func TestBattleOnBarricadeTerrainWithOneAttackerWithEqualForce(t *testing.T) {
 	var p1 *game.Player = &game.Player{}
 	var p2 *game.Player = &game.Player{}
 
-	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 7)
+	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 8)
 
 	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 
@@ -151,7 +151,7 @@ func TestBattleOnBarricadeTerrainWithOneAttackerWithWinningAttacker(t *testing.T
 	var p1 *game.Player = &game.Player{}
 	var p2 *game.Player = &game.Player{}
 
-	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 8)
+	var g1 *game.SoldierGroup = game.NewSoldierGroup(p2, 9)
 
 	var terrain *game.Terrain = game.NewTerrain(uuid.Max.String())
 

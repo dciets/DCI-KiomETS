@@ -24,14 +24,14 @@ func barrierTerrainF1Function(f1 uint32, f2 uint32) uint32 {
 	if f1 == 0 {
 		return 0
 	}
-	return uint32(max(0, int32(f1)-((int32(f2)-5)/2)))
+	return uint32(max(0, int32(f1)-((int32(f2)-5)/3)))
 }
 
 func barrierTerrainF2Function(f1 uint32, f2 uint32) uint32 {
 	if f1 == 0 {
 		return f2
 	}
-	return uint32(max(0, int32(f2)-int32(f1)*2-5))
+	return uint32(max(0, int32(f2)-int32(f1)*3-5))
 }
 
 func battle2Group(g1 *SoldierGroup, g2 *SoldierGroup) {
