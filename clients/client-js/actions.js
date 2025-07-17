@@ -55,10 +55,11 @@ class Action {
 }
 
 /**
- *
- * @param terrainFromId {string}
- * @param terrainToId {string}
- * @param quantity {number}
+ * Create a move action to send to the server
+ * @param terrainFromId {string} Source terrain id
+ * @param terrainToId {string} Target adjacent terrain id
+ * @param quantity {number} Quantity of soldier to send
+ * @returns {Action}
  */
 function createMoveAction(terrainFromId, terrainToId, quantity) {
     const action = new Action();
@@ -71,8 +72,9 @@ function createMoveAction(terrainFromId, terrainToId, quantity) {
 }
 
 /**
- *
- * @param terrainId {string}
+ * Create a build barricade action to send to the server
+ * @param terrainId {string} Terrain id to build the barricade
+ * @returns {Action}
  */
 function createBuildBarricadeAction(terrainId) {
     const action = new Action();
@@ -84,8 +86,9 @@ function createBuildBarricadeAction(terrainId) {
 }
 
 /**
- *
- * @param terrainId {string}
+ * Create a build factory action to send to the server
+ * @param terrainId {string} Terrain id to build the factory
+ * @returns {Action}
  */
 function createBuildFactoryAction(terrainId) {
     const action = new Action();
@@ -96,6 +99,11 @@ function createBuildFactoryAction(terrainId) {
     return action;
 }
 
+/**
+ * Create a demolish action to send to the server
+ * @param terrainId Terrain id to destroy a building
+ * @returns {Action}
+ */
 function createDemolishAction(terrainId) {
     const action = new Action();
     action.build = new BuildAction();
