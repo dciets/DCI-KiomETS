@@ -155,7 +155,7 @@ export class GameComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getScores(): { name: string; possessedTerrainsCount: number }[] {
+  getScores(): { name: string; possessedTerrainsCount: number; color:string }[] {
     let players = this.data.players ?? [];
     return players
       .sort(function (a: any, b: any) {

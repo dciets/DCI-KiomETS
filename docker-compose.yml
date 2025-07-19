@@ -1,6 +1,6 @@
 services:
   gameserver:
-    container_name: GameServer
+    contain er_name: GameServer
     restart: always
     build:
       context: ./gameserver/server
@@ -23,7 +23,7 @@ services:
       APP_ENV: true
       GAME_PORT: 10000
       ADMIN_PORT: 10001
-      GAME_SERVER_HOST: host.docker.internal
+      GAME_SERVER_HOST: 127.0.0.1
       ORIGIN_ALLOWED: localhost:4200,http://localhost,http://127.0.0.1
   frontend:
     container_name: Frontend

@@ -28,7 +28,7 @@
       </tr>
       </thead>
       <tbody class="max-h-full overflow-auto">
-      <tr *ngFor="let score of getScores()" class="h-8">
+      <tr *ngFor="let score of getScores()" class="h-8" id="{{score.name}}" style="background-color:{{score.color}}">
         <td class="h-8 text-center">
           {{ score.name }}
         </td>
