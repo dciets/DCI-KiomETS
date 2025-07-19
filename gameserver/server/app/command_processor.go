@@ -129,7 +129,7 @@ func (c *CommandProcessor) Process(command string) {
 	case "force-stop":
 		c.mutex.Lock()
 		if len(split) == 2 {
-			var ret = c.stop()
+			var ret = c.forceStop()
 			_ = c.adminListener.Write(split[1] + " " + ret)
 		}
 		c.mutex.Unlock()
