@@ -31,6 +31,7 @@ type GameRuntime struct {
 	terrainChangeSpeed   uint32
 	userRepository       *UserRepository
 	actionMutex          sync.Mutex
+	askToStop            bool
 }
 
 func (runtime *GameRuntime) tick() {
@@ -52,6 +53,10 @@ func (runtime *GameRuntime) startNewGame() {
 	var maxTickPerGame uint32 = runtime.maxTickPerGame
 
 	for i := 0; i < int(maxTickPerGame); i++ {
+		if runtime.askToStop {
+			runtime.askToStop = false
+			break
+		}
 		var start time.Time = time.Now()
 		runtime.tick()
 
@@ -88,6 +93,7 @@ func NewGameRuntime(gameListener interfaces.Listener, repository *UserRepository
 		soldierCreationSpeed: 1,
 		terrainChangeSpeed:   1,
 		userRepository:       repository,
+		askToStop:            false,
 	}
 
 	return runtime
@@ -113,6 +119,10 @@ func (runtime *GameRuntime) Start() {
 
 func (runtime *GameRuntime) Stop() {
 	runtime.ticking = false
+}
+
+func (runtime *GameRuntime) ForceStop() {
+	runtime.askToStop = true
 }
 
 func (runtime *GameRuntime) SetMaxTick(maxTick uint32) {

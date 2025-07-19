@@ -57,6 +57,14 @@ func (c *CommandProcessor) stop() string {
 	return "0"
 }
 
+func (c *CommandProcessor) forceStop() string {
+	if c.gameRuntime.Status() {
+		c.gameRuntime.ForceStop()
+		return "1"
+	}
+	return "0"
+}
+
 func (c *CommandProcessor) connect(id string) bool {
 	var player *Player
 	var err error
@@ -118,6 +126,13 @@ func (c *CommandProcessor) Process(command string) {
 		}
 		c.mutex.Unlock()
 		break
+	case "force-stop":
+		c.mutex.Lock()
+		if len(split) == 2 {
+			var ret = c.stop()
+			_ = c.adminListener.Write(split[1] + " " + ret)
+		}
+		c.mutex.Unlock()
 	case "status":
 		c.mutex.Lock()
 		if len(split) == 2 {
